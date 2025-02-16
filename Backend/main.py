@@ -9,6 +9,10 @@ import os
 from openai import OpenAI
 import time
 from datetime import datetime, timedelta
+from pydantic import BaseModel
+from src.data_preprocessing import preprocess_data
+from src.model_training import train_model
+from src.prediction import predict_accessibility_score
 import googlemaps
 
 app = FastAPI()
@@ -321,6 +325,64 @@ def get_traffic_data(city_name: str, destination: str, future_date: str):
             average_times[origin] = {"average_commute_time": 0}
     
     return {"traffic_data": data_collection, "average_times": average_times}
+
+# Define the input data model
+class VenueFeatures(BaseModel):
+    venue_name: str
+    ramp_availability: str
+    elevator_availability: str
+    accessible_toilets: str
+    wifi_availability: str
+    parking_availability: str
+    signage: str
+    staff_assistance: str
+    door_width: int
+    lighting: str
+    noise_level: str
+
+# Load the model and preprocess data when the app starts
+data = preprocess_data("data/mock_venue_accessibility_data.csv")
+model = train_model(data)
+
+# Define the /predict-accessibility-score endpoint
+@app.post("/predict-accessibility-score")
+def predict(features: VenueFeatures):
+    try:
+        # Convert input data to a dictionary
+        input_data = features.dict()
+        
+        # Make a prediction
+        prediction = predict_accessibility_score(model, input_data)
+        
+        # Clean the prediction (remove newlines, spaces, etc.)
+        prediction = prediction.strip()  # Remove leading/trailing whitespace
+        prediction = "".join(prediction.split())  # Remove all whitespace
+        
+        # Convert the prediction to a float or int
+        try:
+            score = float(prediction)  # Convert to float
+            if score.is_integer():  # Check if it's an integer
+                score = int(score)
+        except ValueError:
+            raise HTTPException(status_code=500, detail="Invalid prediction format")
+        
+        # Return the prediction
+        return {"accessibility_score": score}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get("/weather-report")
+def predictWeather():
+    return {
+        "Temperature": 22.5,
+        "Humidity": 60,
+        "WindSpeed": 15,
+        "PrecipitationProbability": 30
+    }
+def safetyReport():
+    return {
+        "Hostility": "High"
+    }
 
 
 if __name__ == "__main__":
