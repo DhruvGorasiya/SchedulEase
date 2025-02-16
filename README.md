@@ -1,2 +1,3 @@
-# ScheludEase
-2025
+# SchedulEase
+
+AI Innovalte Hackathon Project. Team 14
