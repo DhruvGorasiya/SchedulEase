@@ -7,11 +7,16 @@ import json
 import re
 import os
 from openai import OpenAI
+import time
+from datetime import datetime, timedelta
+import googlemaps
 
 app = FastAPI()
 
 # Initialize OpenAI client at the top level
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+
+gmaps = googlemaps.Client(key=os.getenv('GOOGLE_API_KEY')) #look in whatsapp for key
 
 # Clear conversations periodically (optional)
 @app.on_event("startup")
@@ -242,6 +247,81 @@ async def handle_message(request: MessageRequest):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+def get_transport_locations(city_name, airport=False):
+    geocode_result = gmaps.geocode(city_name)
+    
+    if not geocode_result:
+        return f"City '{city_name}' not found."
+
+    city_location = geocode_result[0]['geometry']['location']
+    lat, lng = city_location['lat'], city_location['lng']
+
+    transport_types = ['train_station', 'airport'] if not airport else ['airport']
+    transport_locations = []
+
+    for transport_type in transport_types:
+        places_result = gmaps.places_nearby((lat, lng), radius=5000, type=transport_type)
+        
+        for place in places_result.get('results', []):
+            transport_locations.append(place['name'] + ', ' + city_name)
+    
+    return transport_locations
+
+@app.get("/traffic")
+def get_traffic_data(city_name: str, destination: str, future_date: str):
+    start_time = datetime.strptime(future_date, "%Y-%m-%d")
+    data_collection = {}
+    airport_locations = get_transport_locations(city_name,True)[:1]
+    transport_locations=get_transport_locations(city_name)[:5]
+
+    
+    # Loop from 9 AM to midnight
+    for hour in range(9, 24):
+        current_time = start_time + timedelta(hours=hour)
+        unix_timestamp = int(time.mktime(current_time.timetuple()))
+        
+        traffic_results = gmaps.distance_matrix(
+            origins=airport_locations,
+            destinations=destination,
+            departure_time=unix_timestamp,
+            traffic_model="best_guess",
+            mode="driving"
+        )
+        
+        for j, origin in enumerate(airport_locations):
+            duration_text = traffic_results["rows"][j]["elements"][0].get("duration_in_traffic", {}).get("text", "N/A")
+            duration_value = traffic_results["rows"][j]["elements"][0].get("duration_in_traffic", {}).get("value", None)
+            
+            if origin not in data_collection:
+                data_collection[origin] = {"times": {}}
+            
+            data_collection[origin]["times"][current_time.strftime("%H:%M")] = {
+                "travel_time_text": duration_text,
+                "travel_time_seconds": duration_value
+            }
+            
+    # Calculate average commute times for all 5 locations
+    average_times = {}
+    for origin in transport_locations:
+        traffic_results = gmaps.distance_matrix(
+            origins=[origin],
+            destinations=[destination],
+            departure_time=start_time.timestamp(),
+            traffic_model="best_guess",
+            mode="driving"
+        )
+        
+        duration_value = traffic_results["rows"][0]["elements"][0].get("duration_in_traffic", {}).get("value", None)
+        
+        if duration_value:
+            average_times[origin] = {"average_commute_time": duration_value}
+        else:
+            average_times[origin] = {"average_commute_time": 0}
+    
+    return {"traffic_data": data_collection, "average_times": average_times}
+
 
 if __name__ == "__main__":
     import uvicorn
