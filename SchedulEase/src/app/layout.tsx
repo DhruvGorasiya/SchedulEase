@@ -6,13 +6,9 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { cookies } from "next/headers";
 import {
   ClerkProvider,
-  SignInButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
 } from "@clerk/nextjs";
 import Authenticate from "./aunthenticate";
-import HomePage from "./homepage/page";
+import { Toaster } from 'react-hot-toast';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,8 +21,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BrightMind",
-  description: "BrightMind",
+  title: "SchedulEase",
+  description: "SchedulEase",
 };
 
 export default async function RootLayout({
@@ -53,8 +49,8 @@ export default async function RootLayout({
               {children}
             </main>
           </SidebarProvider>
-
         </ClerkProvider>
+        <Toaster />
       </body>
     </html>
   );

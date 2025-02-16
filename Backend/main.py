@@ -9,16 +9,16 @@ import os
 from openai import OpenAI
 import time
 from datetime import datetime, timedelta
-from pydantic import BaseModel
-from src.data_preprocessing import preprocess_data
-from src.model_training import train_model
-from src.SafetyPredictor import run_security_workflow
-from src.prediction import predict_accessibility_score
 import googlemaps
+from dotenv import load_dotenv  # Import dotenv
+import random
+from pathlib import Path
+
+# Load environment variables
+load_dotenv()
 
 app = FastAPI()
 
-# Initialize OpenAI client at the top level
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 gmaps = googlemaps.Client(key=os.getenv('GOOGLE_API_KEY')) #look in whatsapp for key
@@ -28,7 +28,6 @@ gmaps = googlemaps.Client(key=os.getenv('GOOGLE_API_KEY')) #look in whatsapp for
 async def startup_event():
     conversations.clear()
 
-# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -58,17 +57,48 @@ class MessageResponse(BaseModel):
     message: str
     type: str = "question"  # can be "question", "error", "venues", or "summary"
     venues: Optional[List[dict]] = None
-    predictionData: Optional[List[dict]] = None
     timestamp: datetime = Field(default_factory=datetime.now)
+
+class PlaceResponse(BaseModel):
+    places: List[dict]
+    timestamp: datetime = Field(default_factory=datetime.now)
+
+class VenueWeatherData(BaseModel):
+    Temperature: float
+    Humidity: int
+    WindSpeed: float
+    PrecipitationProbability: int
+
+class VenueSafetyData(BaseModel):
+    Hostility: str
+
+class SaveVenueRequest(BaseModel):
+    name: str
+    address: str
+    capacity: str
+    features: List[str]
+    source: str
+    accessibility_score: float
+    weather_data: VenueWeatherData
+    safety_data: VenueSafetyData
+    date: str
+    event_type: str
 
 # Store conversation states
 conversations: Dict[str, ConversationState] = {}
 
 def generate_venue_recommendations(data: dict) -> List[dict]:
-    # Remove client initialization from here since we're using the global client
+    # Format the date to ensure YYYY-MM-DD format
+    try:
+        date_obj = datetime.strptime(data['date'], '%Y-%m-%d')
+        formatted_date = date_obj.strftime('%Y-%m-%d')
+    except:
+        formatted_date = data['date']  # Keep original if already in correct format
     
-    # Construct a more detailed prompt for realistic venues
-    prompt = f"""As an expert event planner, recommend 20 real and currently operating venues in {data['location']} that would be perfect for a {data['event_type']} with {data['attendees']} attendees and a budget of {data['budget']}.
+    # Ensure event_type is single word
+    event_type = data['event_type'].split()[0].lower()
+    
+    prompt = f"""As an expert event planner, recommend 9 real and currently operating venues in {data['location']} that would be perfect for a {event_type} with {data['attendees']} attendees and a budget of {data['budget']}.
 
     Research and provide real venues that actually exist, including:
     - The venue's real name and actual location
@@ -89,23 +119,10 @@ def generate_venue_recommendations(data: dict) -> List[dict]:
                 "source": "Actual website URL",
                 "state": "Actual state",
                 "time": "{data['time']}",
-                "date": "{data['date']}",
+                "date": "{formatted_date}",
+                "event_type": "{event_type}",
                 "budget": "{data['budget']}",
-                "attendees": "{data['attendees']}"
-            }}
-        ]
-        "predictionData": [
-            {{
-                "name": "Real Venue Name",
-                "address": "Actual Street Address",
-                "capacity": "Specific capacity range",
-                "features": ["Real Feature 1", "Real Feature 2", "Real Feature 3"],
-                "source": "Actual website URL",
-                "date": "Actual date",
-                "time": "Actual time",
-                "budget": "Actual budget",
-                "attendees": "Actual attendees",
-                "state": "Actual state"
+                "attendees": "{data['attendees']}",
             }}
         ]
     }}"""
@@ -120,12 +137,18 @@ def generate_venue_recommendations(data: dict) -> List[dict]:
             response_format={ "type": "json_object" }
         )
         
-        # Add error handling for the response content
         if not response.choices or not response.choices[0].message.content:
             raise Exception("No response received from OpenAI")
             
         venues_data = json.loads(response.choices[0].message.content)
-        return venues_data.get('venues', [])
+        venues = venues_data.get('venues', [])
+        
+        # Add date and event_type to each venue
+        for venue in venues:
+            venue['date'] = formatted_date
+            venue['event_type'] = event_type
+            
+        return venues
     except Exception as e:
         print(f"Error generating venues: {str(e)}")
         return [{
@@ -133,12 +156,14 @@ def generate_venue_recommendations(data: dict) -> List[dict]:
             "address": "Could not generate venue recommendations at this time",
             "capacity": "Unknown",
             "features": ["Please try again later"],
-            "source": ""
+            "source": "",
+            "date": formatted_date,
+            "event_type": event_type
         }]
 
 def validate_input(question_type: str, user_input: str) -> tuple[bool, str]:
     """Validate user input and return (is_valid, processed_input)"""
-    user_input = user_input.strip()
+    user_input = user_input.strip().lower()
     
     if not user_input:
         return False, "I need an answer to proceed. "
@@ -153,15 +178,116 @@ def validate_input(question_type: str, user_input: str) -> tuple[bool, str]:
         return True, user_input
     elif question_type == "date":
         try:
-            if not re.match(r'\d{1,2}[-/]\d{1,2}[-/]\d{2,4}', user_input):
-                return False, "I need a valid date format (DD/MM/YYYY or MM/DD/YYYY). "
-            return True, user_input
-        except:
+            # Convert common word patterns to dates
+            user_input = user_input.lower()
+            
+            # Handle "today", "tomorrow", "day after tomorrow"
+            if "today" in user_input:
+                return True, datetime.now().strftime('%Y-%m-%d')
+            elif "tomorrow" in user_input:
+                return True, (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
+            elif "day after tomorrow" in user_input:
+                return True, (datetime.now() + timedelta(days=2)).strftime('%Y-%m-%d')
+            
+            # Handle "next" patterns (next monday, next week, next month)
+            if "next" in user_input:
+                today = datetime.now()
+                if "week" in user_input:
+                    return True, (today + timedelta(days=7)).strftime('%Y-%m-%d')
+                elif "month" in user_input:
+                    # Add roughly 30 days
+                    return True, (today + timedelta(days=30)).strftime('%Y-%m-%d')
+                else:
+                    # Try to parse day name (next monday, next tuesday, etc.)
+                    for i, day in enumerate(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']):
+                        if day in user_input:
+                            current_day = today.weekday()
+                            target_day = i
+                            days_ahead = target_day - current_day
+                            if days_ahead <= 0:  # Target day has passed this week
+                                days_ahead += 7
+                            return True, (today + timedelta(days=days_ahead)).strftime('%Y-%m-%d')
+            
+            # Try different date formats
+            date_formats = [
+                '%d/%m/%Y', '%m/%d/%Y', '%d-%m-%Y', '%m-%d-%Y', 
+                '%d/%m/%y', '%m/%d/%y', '%d-%m-%y', '%m-%d-%y',
+                '%B %d, %Y', '%b %d, %Y',  # December 25, 2024 or Dec 25, 2024
+                '%d %B %Y', '%d %b %Y',    # 25 December 2024 or 25 Dec 2024
+                '%Y-%m-%d',                # ISO format
+                '%d.%m.%Y', '%m.%d.%Y',    # Dot format
+                '%d %m %Y', '%m %d %Y'     # Space separated
+            ]
+            
+            for fmt in date_formats:
+                try:
+                    parsed_date = datetime.strptime(user_input, fmt)
+                    # Check if date is not in the past
+                    if parsed_date.date() < datetime.now().date():
+                        return False, "Please provide a future date. The event cannot be scheduled in the past. "
+                    # Convert to YYYY-MM-DD format
+                    return True, parsed_date.strftime('%Y-%m-%d')
+                except ValueError:
+                    continue
+            
+            # If none of the formats match
+            return False, "Please provide a valid date (e.g., DD/MM/YYYY, 'next monday', 'December 25, 2024'). "
+            
+        except Exception as e:
             return False, "Please provide a valid date. "
     elif question_type == "time":
-        if not re.match(r'\d{1,2}[:]\d{2}|^\d{1,2}\s*(?:am|pm|AM|PM)', user_input):
-            return False, "I need a valid time format (e.g., 14:30 or 2:30 PM). "
-        return True, user_input
+        try:
+            # Remove uncertainty words/phrases
+            uncertainty_words = [
+                'around', 'about', 'approximately', 'maybe', 'may be', 'probably',
+                'likely', 'roughly', 'somewhere', 'circa', 'near', 'close to',
+                'approximately at', 'at about', 'around 6pm', 'maybe noon'
+            ]
+            
+            cleaned_input = user_input
+            for word in uncertainty_words:
+                cleaned_input = cleaned_input.replace(word, '').strip()
+            
+            # Handle special time phrases
+            if "noon" in cleaned_input:
+                return True, "12:00"
+            elif "midnight" in cleaned_input:
+                return True, "00:00"
+            
+            # Remove any spaces between numbers and am/pm
+            cleaned_input = re.sub(r'(\d)(am|pm)', r'\1 \2', cleaned_input)
+            cleaned_input = re.sub(r'(\d)([ap]\.m\.)', r'\1 \2', cleaned_input)
+            
+            # Handle various time formats
+            time_patterns = [
+                # 2:30pm, 2:30 pm, 2:30p.m., 14:30
+                (r'^(\d{1,2}):(\d{2})\s*(am|pm|a\.m\.|p\.m\.)?$', 
+                 lambda m: convert_to_24hr(int(m.group(1)), int(m.group(2)), m.group(3))),
+                
+                # 2pm, 2 pm, 2p.m., 14
+                (r'^(\d{1,2})\s*(am|pm|a\.m\.|p\.m\.)?$', 
+                 lambda m: convert_to_24hr(int(m.group(1)), 0, m.group(2))),
+                
+                # 1430, 0230 (military time)
+                (r'^(\d{4})$', 
+                 lambda m: f"{m.group(1)[:2]}:{m.group(1)[2:]}")
+            ]
+            
+            for pattern, converter in time_patterns:
+                match = re.match(pattern, cleaned_input)
+                if match:
+                    formatted_time = converter(match)
+                    # Validate the time is valid
+                    try:
+                        datetime.strptime(formatted_time, '%H:%M')
+                        return True, formatted_time
+                    except ValueError:
+                        continue
+            
+            return False, "Please provide a valid time (e.g., '2:30 PM', '14:30', 'around 6pm', 'maybe noon'). "
+            
+        except Exception as e:
+            return False, "Please provide a valid time. "
     elif question_type == "budget":
         budget = ''.join(c for c in user_input if c.isdigit())
         if not budget:
@@ -174,6 +300,25 @@ def validate_input(question_type: str, user_input: str) -> tuple[bool, str]:
         return True, attendees
     
     return False, "I couldn't understand that. Please try again. "
+
+def convert_to_24hr(hour: int, minute: int, period: str = None) -> str:
+    """Convert time to 24-hour format"""
+    if period:
+        period = period.lower().replace('.', '')
+        if period in ['pm', 'p.m'] and hour != 12:
+            hour += 12
+        elif period in ['am', 'a.m'] and hour == 12:
+            hour = 0
+    
+    # Ensure valid hour
+    if hour > 23:
+        raise ValueError("Invalid hour")
+    
+    # Ensure valid minute
+    if minute > 59:
+        raise ValueError("Invalid minute")
+        
+    return f"{hour:02d}:{minute:02d}"
 
 @app.post("/api/ai_message", response_model=MessageResponse)
 async def handle_message(request: MessageRequest):
@@ -231,6 +376,28 @@ async def handle_message(request: MessageRequest):
                 )
             else:
                 venues = generate_venue_recommendations(state.collected_data)
+                
+                # Process venues in parallel using list comprehension
+                # Simplified traffic data collection
+                for venue in venues:
+                    try:
+                        city = venue['address'].split(',')[1].strip()
+                        destination = venue['name'] + ', ' + city
+                        
+                        # Get only essential traffic data with fewer time points
+                        venue['traffic'] = get_simplified_traffic_data(city, destination, state.collected_data['date'])
+                        
+                        # Add other data directly without additional API calls
+                        venue['accessibility_score'] = random.randint(70, 95)
+                        venue['weather_data'] = predictWeather()
+                        venue['safety_data'] = safetyReport()
+                        
+                    except Exception as e:
+                        print(f"Error processing data for venue {venue.get('name')}: {str(e)}")
+                        venue['traffic'] = None
+                        venue['accessibility_score'] = random.randint(70, 95)
+                        venue['weather_data'] = None
+                        venue['safety_data'] = None
                 
                 try:
                     with open('event_data.json', 'a') as f:
@@ -341,60 +508,199 @@ class VenueFeatures(BaseModel):
     lighting: str
     noise_level: str
 
-class VenueSafetyFeatures(BaseModel):
-    lat: float
-    long: float
-    tweets: list
-    datetimeobject: datetime
+# # Load the model and preprocess data when the app starts
+# data = preprocess_data("data/mock_venue_accessibility_data.csv")
+# model = train_model(data)
 
-# Load the model and preprocess data when the app starts
-data = preprocess_data("data/mock_venue_accessibility_data.csv")
-model = train_model(data)
+# # Define the /predict-accessibility-score endpoint
+# @app.post("/predict-accessibility-score")
+# def predict(features: VenueFeatures):
+#     try:
+#         # Convert input data to a dictionary
+#         input_data = features.dict()
+        
+#         # Make a prediction
+#         prediction = predict_accessibility_score(model, input_data)
+        
+#         # Clean the prediction (remove newlines, spaces, etc.)
+#         prediction = prediction.strip()  # Remove leading/trailing whitespace
+#         prediction = "".join(prediction.split())  # Remove all whitespace
+        
+#         # Convert the prediction to a float or int
+#         try:
+#             score = float(prediction)  # Convert to float
+#             if score.is_integer():  # Check if it's an integer
+#                 score = int(score)
+#         except ValueError:
+#             raise HTTPException(status_code=500, detail="Invalid prediction format")
+        
+#         # Return the prediction
+#         return {"accessibility_score": score}
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
 
-# Define the /predict-accessibility-score endpoint
 @app.post("/predict-accessibility-score")
-def predict(features: VenueFeatures):
-    try:
-        # Convert input data to a dictionary
-        input_data = features.dict()
-        
-        # Make a prediction
-        prediction = predict_accessibility_score(model, input_data)
-        
-        # Clean the prediction (remove newlines, spaces, etc.)
-        prediction = prediction.strip()  # Remove leading/trailing whitespace
-        prediction = "".join(prediction.split())  # Remove all whitespace
-        
-        # Convert the prediction to a float or int
-        try:
-            score = float(prediction)  # Convert to float
-            if score.is_integer():  # Check if it's an integer
-                score = int(score)
-        except ValueError:
-            raise HTTPException(status_code=500, detail="Invalid prediction format")
-        
-        # Return the prediction
-        return {"accessibility_score": score}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+def predictAccessibility(features: VenueFeatures):
+    score = random.randint(75, 90)  # Generates a random score between 75 and 90
+    return {"accessibility_score": score}
     
 @app.get("/weather-report")
 def predictWeather():
     return {
-        "Temperature": 22.5,
-        "Humidity": 60,
-        "WindSpeed": 15,
-        "PrecipitationProbability": 30
+        "Temperature": round(random.uniform(10, 35), 1),  # Temperature in °C (10°C - 35°C)
+        "Humidity": random.randint(30, 90),  # Humidity in percentage (30% - 90%)
+        "WindSpeed": round(random.uniform(5, 25), 1),  # Wind Speed in km/h (5km/h - 25km/h)
+        "PrecipitationProbability": random.randint(0, 100)  # Probability of rain (0% - 100%)
     }
-@app.post("/predict-safety")
-def safetyReport(features: VenueSafetyFeatures):
+
+
+def safetyReport():
+    levels = ["Low", "Moderate", "High"]
+    probabilities = [0.4, 0.4, 0.2]  # Corresponding probabilities
+
+    return {
+        "Hostility": random.choices(levels, probabilities)[0]
+    }
+
+def generate_random_features() -> VenueFeatures:
+    # Define possible values for string fields
+    availability_options = ["Available", "Not Available", "Limited"]
+    lighting_options = ["Good", "Medium", "Poor"]
+    noise_options = ["Low", "Medium", "High"]
+    
+    return VenueFeatures(
+        venue_name=f"Venue_{random.randint(1, 100)}",
+        ramp_availability=random.choice(availability_options),
+        elevator_availability=random.choice(availability_options),
+        accessible_toilets=random.choice(availability_options),
+        wifi_availability=random.choice(availability_options),
+        parking_availability=random.choice(availability_options),
+        signage=random.choice(availability_options),
+        staff_assistance=random.choice(availability_options),
+        door_width=random.randint(70, 120),  # Standard door widths in cm
+        lighting=random.choice(lighting_options),
+        noise_level=random.choice(noise_options)
+    )
+
+@app.get("/random-accessibility-features")
+def get_random_features():
+    features = generate_random_features()
+    return features
+
+def get_simplified_traffic_data(city_name: str, destination: str, future_date: str):
+    """Simplified version of traffic data collection with fewer time points"""
+    start_time = datetime.strptime(future_date, "%Y-%m-%d")
+    data_collection = {}
+    
+    # Only get one main transport location instead of multiple
+    airport_location = get_transport_locations(city_name, True)[:1]
+    
+    # Only check traffic for key hours (morning, afternoon, evening)
+    key_hours = [9, 14, 18]  # Reduced from checking every hour
+    
+    for hour in key_hours:
+        current_time = start_time + timedelta(hours=hour)
+        unix_timestamp = int(time.mktime(current_time.timetuple()))
+        
+        if airport_location:
+            traffic_results = gmaps.distance_matrix(
+                origins=airport_location,
+                destinations=[destination],
+                departure_time=unix_timestamp,
+                traffic_model="best_guess",
+                mode="driving"
+            )
+            
+            origin = airport_location[0]
+            duration_text = traffic_results["rows"][0]["elements"][0].get("duration_in_traffic", {}).get("text", "N/A")
+            duration_value = traffic_results["rows"][0]["elements"][0].get("duration_in_traffic", {}).get("value", None)
+            
+            if origin not in data_collection:
+                data_collection[origin] = {"times": {}}
+            
+            data_collection[origin]["times"][current_time.strftime("%H:%M")] = {
+                "travel_time_text": duration_text,
+                "travel_time_seconds": duration_value
+            }
+    
+    return {"traffic_data": data_collection}
+
+@app.get("/generate-random-places", response_model=PlaceResponse)
+async def generate_random_places(event_type: str = "party"):
     try:
-        safetyReport = run_security_workflow(features.lat, features.long, features.datetimeobject, features.tweets)
-        return {
-            "Hostility": safetyReport
-        }
+        # Read the JSON file
+        with open('place_data.json', 'r') as file:
+            all_places = json.load(file)
+        
+        # Filter places that match the event type (case-insensitive)
+        matching_places = [
+            place for place in all_places.get('places', [])
+            if event_type.lower() in [et.lower() for et in place.get('event_types', [])]
+        ]
+        
+        # If no matching places found, use all places
+        if not matching_places:
+            matching_places = all_places.get('places', [])
+        
+        # Select 20 random unique places
+        selected_places = random.sample(
+            matching_places,
+            min(20, len(matching_places))  # Ensure we don't try to sample more than available
+        )
+        
+        return PlaceResponse(places=selected_places)
+        
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"Error generating places: {str(e)}")
+        return PlaceResponse(places=[{
+            "name": "Error",
+            "address": "Could not generate place recommendations at this time",
+            "capacity": "Unknown",
+            "features": ["Please try again later"],
+            "website": "",
+            "state": "Unknown",
+            "estimated_cost": "Unknown",
+            "event_types": [event_type]
+        }])
+
+@app.post("/api/save-venue")
+async def save_venue(venue: SaveVenueRequest):
+    try:
+        # Create the file if it doesn't exist
+        saved_places_file = Path('saved_places.json')
+        if not saved_places_file.exists():
+            saved_places_file.write_text('{"venues": []}')
+
+        # Read existing venues
+        with open('saved_places.json', 'r') as f:
+            data = json.load(f)
+
+        # Add new venue
+        data['venues'].append(venue.dict())
+
+        # Write back to file
+        with open('saved_places.json', 'w') as f:
+            json.dump(data, f, indent=2)
+
+        return {"message": "Venue saved successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save venue: {str(e)}")
+
+@app.get("/api/saved-venues")
+async def get_saved_venues():
+    try:
+        # Check if the file exists
+        saved_places_file = Path('saved_places.json')
+        if not saved_places_file.exists():
+            return {"venues": []}
+
+        # Read and return the saved venues
+        with open('saved_places.json', 'r') as f:
+            data = json.load(f)
+            
+        return data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve saved venues: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

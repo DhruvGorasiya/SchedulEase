@@ -1,0 +1,50 @@
+{
+  "venues": [
+    {
+      "name": "The Atrium at Society on High",
+      "address": "31 High St, Boston, MA 02110",
+      "capacity": "Up to 120",
+      "features": [
+        "Natural Light",
+        "In-house catering options",
+        "AV Equipment Available"
+      ],
+      "source": "https://www.societyonhigh.com/",
+      "accessibility_score": 79.0,
+      "weather_data": {
+        "Temperature": 31.5,
+        "Humidity": 33,
+        "WindSpeed": 15.7,
+        "PrecipitationProbability": 52
+      },
+      "safety_data": {
+        "Hostility": "Low"
+      },
+      "date": "2025-11-26",
+      "event_type": "party"
+    },
+    {
+      "name": "The Salem Waterfront Hotel & Suites",
+      "address": "225 Derby St, Salem, MA 01970",
+      "capacity": "Up to 100",
+      "features": [
+        "Scenic Waterfront Views",
+        "Event Planning Services",
+        "Free Wi-Fi"
+      ],
+      "source": "https://www.salemwaterfronthotel.com/",
+      "accessibility_score": 88.0,
+      "weather_data": {
+        "Temperature": 26.3,
+        "Humidity": 90,
+        "WindSpeed": 20.0,
+        "PrecipitationProbability": 57
+      },
+      "safety_data": {
+        "Hostility": "Low"
+      },
+      "date": "2025-11-26",
+      "event_type": "party"
+    }
+  ]
+}

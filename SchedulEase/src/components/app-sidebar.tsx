@@ -46,8 +46,13 @@ const items = [
     icon: Home,
   },
   {
-    title: "Posts",
+    title: "Reservations",
     url: "#",
+    icon: Inbox,
+  },
+  {
+    title: "Saved Venues",
+    url: "/saved-venues",
     icon: Inbox,
   },
   {
@@ -67,7 +72,7 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>BrightMind</SidebarGroupLabel>
+          <SidebarGroupLabel>SchedulEase</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
