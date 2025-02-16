@@ -1,13 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useAuth } from "@clerk/nextjs";
-import { useUser } from '@clerk/nextjs'
+import { useUser } from "@clerk/nextjs";
 
 export default function HomePage() {
   const router = useRouter();
 
-  const { isLoaded, isSignedIn } = useAuth();
   const { user } = useUser();
 
   return (
@@ -29,27 +27,27 @@ export default function HomePage() {
               Your Journey to Finding the Perfect Venue
             </h2>
             <p className="text-gray-700 dark:text-gray-300 mb-6 text-lg leading-relaxed">
-              EventFinder provides a seamless experience for booking venues for your events. Discover options, resources, and guidance to enhance your event planning.
+              EventFinder provides a seamless experience for booking venues for
+              your events. Discover options, resources, and guidance to enhance
+              your event planning.
             </p>
             <div className="flex gap-4 flex-wrap">
-              <button
+              {/* <button
                 className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-lg text-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-md"
                 onClick={() => router.push("/venue-check")}
               >
                 How can we help you find a venue today?
+              </button> */}
+              <button
+                className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-3 rounded-lg text-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-md"
+                onClick={() => router.push("/chat")}
+              >
+                Want to book a venue? Try out SchedulEase.
               </button>
-              {isSignedIn && (
-                <button
-                  className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-3 rounded-lg text-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-md"
-                  onClick={() => router.push("/chat")}
-                >
-                  Want to talk? Chat with us.
-                </button>
-              )}
             </div>
           </section>
 
-          <section className="grid md:grid-cols-2 gap-8">
+          {/* <section className="grid md:grid-cols-2 gap-8">
             <div
               className="bg-white/80 dark:bg-gray-800/90 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm border border-gray-100 dark:border-gray-700 cursor-pointer"
               onClick={() => router.push("/venue-resource")}
@@ -72,7 +70,7 @@ export default function HomePage() {
                 Discover personalized options for hosting events and guided planning resources.
               </p>
             </div>
-          </section>
+          </section> */}
         </div>
       </div>
     </div>
