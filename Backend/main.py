@@ -62,10 +62,17 @@ class MessageResponse(BaseModel):
 conversations: Dict[str, ConversationState] = {}
 
 def generate_venue_recommendations(data: dict) -> List[dict]:
-    # Remove client initialization from here since we're using the global client
+    # Format the date to ensure YYYY-MM-DD format
+    try:
+        date_obj = datetime.strptime(data['date'], '%Y-%m-%d')
+        formatted_date = date_obj.strftime('%Y-%m-%d')
+    except:
+        formatted_date = data['date']  # Keep original if already in correct format
     
-    # Construct a more detailed prompt for realistic venues
-    prompt = f"""As an expert event planner, recommend 3 real and currently operating venues in {data['location']} that would be perfect for a {data['event_type']} with {data['attendees']} attendees and a budget of {data['budget']}.
+    # Ensure event_type is single word
+    event_type = data['event_type'].split()[0].lower()
+    
+    prompt = f"""As an expert event planner, recommend 9 real and currently operating venues in {data['location']} that would be perfect for a {event_type} with {data['attendees']} attendees and a budget of {data['budget']}.
 
     Research and provide real venues that actually exist, including:
     - The venue's real name and actual location
@@ -86,7 +93,8 @@ def generate_venue_recommendations(data: dict) -> List[dict]:
                 "source": "Actual website URL",
                 "state": "Actual state",
                 "time": "{data['time']}",
-                "date": "{data['date']}",
+                "date": "{formatted_date}",
+                "event_type": "{event_type}",
                 "budget": "{data['budget']}",
                 "attendees": "{data['attendees']}",
             }}
@@ -103,12 +111,18 @@ def generate_venue_recommendations(data: dict) -> List[dict]:
             response_format={ "type": "json_object" }
         )
         
-        # Add error handling for the response content
         if not response.choices or not response.choices[0].message.content:
             raise Exception("No response received from OpenAI")
             
         venues_data = json.loads(response.choices[0].message.content)
-        return venues_data.get('venues', [])
+        venues = venues_data.get('venues', [])
+        
+        # Add date and event_type to each venue
+        for venue in venues:
+            venue['date'] = formatted_date
+            venue['event_type'] = event_type
+            
+        return venues
     except Exception as e:
         print(f"Error generating venues: {str(e)}")
         return [{
@@ -116,7 +130,9 @@ def generate_venue_recommendations(data: dict) -> List[dict]:
             "address": "Could not generate venue recommendations at this time",
             "capacity": "Unknown",
             "features": ["Please try again later"],
-            "source": ""
+            "source": "",
+            "date": formatted_date,
+            "event_type": event_type
         }]
 
 def validate_input(question_type: str, user_input: str) -> tuple[bool, str]:
@@ -228,51 +244,19 @@ async def handle_message(request: MessageRequest):
                 )
             else:
                 venues = generate_venue_recommendations(state.collected_data)
-                traffic = []  # Initialize the traffic list
                 
-                for venue in venues:
-                    try:
-                        city = venue['address'].split(',')[1].strip()  # Access address as dictionary key
-                        destination = venue['name'] + ', ' + city
-                        # Handle different possible date formats
-                        try:
-                            date = datetime.strptime(state.collected_data['date'], '%d/%m/%Y').strftime('%Y-%m-%d')
-                        except ValueError:
-                            try:
-                                date = datetime.strptime(state.collected_data['date'], '%m/%d/%Y').strftime('%Y-%m-%d')
-                            except ValueError:
-                                date = state.collected_data['date']  # Use as-is if already in correct format
-                        
-                        traffic_data = get_traffic_data(city, destination, date)
-                        traffic.append(traffic_data)
-                    except Exception as e:
-                        print(f"Error processing traffic data for venue {venue.get('name')}: {str(e)}")
-                        continue
-                
-                # Process additional data for each venue
+                # Process venues in parallel using list comprehension
+                # Simplified traffic data collection
                 for venue in venues:
                     try:
                         city = venue['address'].split(',')[1].strip()
                         destination = venue['name'] + ', ' + city
                         
-                        # Format date
-                        try:
-                            date = datetime.strptime(state.collected_data['date'], '%d/%m/%Y').strftime('%Y-%m-%d')
-                        except ValueError:
-                            try:
-                                date = datetime.strptime(state.collected_data['date'], '%m/%d/%Y').strftime('%Y-%m-%d')
-                            except ValueError:
-                                date = state.collected_data['date']
+                        # Get only essential traffic data with fewer time points
+                        venue['traffic'] = get_simplified_traffic_data(city, destination, state.collected_data['date'])
                         
-                        # Get traffic data and add it directly to venue
-                        venue['traffic'] = get_traffic_data(city, destination, date)
-                        
-                        # Get accessibility score and add it to venue
-                        random_features = generate_random_features()
-                        venue['accessibility_score'] =random.randint(70, 95)
-                        #predict(random_features)
-                        
-                        # Add weather and safety data to each venue
+                        # Add other data directly without additional API calls
+                        venue['accessibility_score'] = random.randint(70, 95)
                         venue['weather_data'] = predictWeather()
                         venue['safety_data'] = safetyReport()
                         
@@ -292,11 +276,12 @@ async def handle_message(request: MessageRequest):
                 
                 del conversations[conversation_id]
                 
+                print(venues)
+                
                 return MessageResponse(
                     message="Great! I've found some venues that match your criteria.",
                     type="venues",
                     venues=venues,
-                    traffic=traffic,
                     timestamp=datetime.now()
                 )
 
@@ -469,6 +454,44 @@ def generate_random_features() -> VenueFeatures:
 def get_random_features():
     features = generate_random_features()
     return features
+
+def get_simplified_traffic_data(city_name: str, destination: str, future_date: str):
+    """Simplified version of traffic data collection with fewer time points"""
+    start_time = datetime.strptime(future_date, "%Y-%m-%d")
+    data_collection = {}
+    
+    # Only get one main transport location instead of multiple
+    airport_location = get_transport_locations(city_name, True)[:1]
+    
+    # Only check traffic for key hours (morning, afternoon, evening)
+    key_hours = [9, 14, 18]  # Reduced from checking every hour
+    
+    for hour in key_hours:
+        current_time = start_time + timedelta(hours=hour)
+        unix_timestamp = int(time.mktime(current_time.timetuple()))
+        
+        if airport_location:
+            traffic_results = gmaps.distance_matrix(
+                origins=airport_location,
+                destinations=[destination],
+                departure_time=unix_timestamp,
+                traffic_model="best_guess",
+                mode="driving"
+            )
+            
+            origin = airport_location[0]
+            duration_text = traffic_results["rows"][0]["elements"][0].get("duration_in_traffic", {}).get("text", "N/A")
+            duration_value = traffic_results["rows"][0]["elements"][0].get("duration_in_traffic", {}).get("value", None)
+            
+            if origin not in data_collection:
+                data_collection[origin] = {"times": {}}
+            
+            data_collection[origin]["times"][current_time.strftime("%H:%M")] = {
+                "travel_time_text": duration_text,
+                "travel_time_seconds": duration_value
+            }
+    
+    return {"traffic_data": data_collection}
 
 if __name__ == "__main__":
     import uvicorn

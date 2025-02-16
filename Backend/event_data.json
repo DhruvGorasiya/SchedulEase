@@ -35,3 +35,12 @@
 {"event_type": "i want a divorce", "location": "Houston", "date": "2025-08-31", "time": "9:30 AM", "budget": "500", "attendees": "20"}
 {"event_type": "wedding for akshu", "location": "San Francisco", "date": "2026-06-24", "time": "4 PM", "budget": "10000", "attendees": "50"}
 {"event_type": "wedding", "location": "boston", "date": "2026-12-13", "time": "9 AM", "budget": "450", "attendees": "4"}
+{"event_type": "party", "location": "boston", "date": "2025-11-11", "time": "1am", "budget": "1", "attendees": "1"}
+{"event_type": "party", "location": "boston", "date": "2025-11-11", "time": "6pm", "budget": "200", "attendees": "100"}
+{"event_type": "party", "location": "boston", "date": "2025-11-11", "time": "1am", "budget": "1", "attendees": "1"}
+{"event_type": "party", "location": "boston", "date": "2025-11-11", "time": "6pm", "budget": "1000", "attendees": "1000"}
+{"event_type": "party", "location": "boston", "date": "2025-11-11", "time": "6pm", "budget": "10000", "attendees": "200"}
+{"event_type": "party", "location": "boston", "date": "2025-11-11", "time": "6pm", "budget": "100", "attendees": "10"}
+{"event_type": "party", "location": "boston", "date": "2025-11-11", "time": "6pm", "budget": "1000", "attendees": "10"}
+{"event_type": "party", "location": "boston", "date": "2025-11-11", "time": "1am", "budget": "1", "attendees": "1"}
+{"event_type": "party", "location": "boston", "date": "2025-11-11", "time": "1am", "budget": "1", "attendees": "1"}
