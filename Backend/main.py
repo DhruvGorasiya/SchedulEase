@@ -48,6 +48,7 @@ class MessageResponse(BaseModel):
     message: str
     type: str = "question"  # can be "question", "error", "venues", or "summary"
     venues: Optional[List[dict]] = None
+    predictionData: Optional[List[dict]] = None
     timestamp: datetime = Field(default_factory=datetime.now)
 
 # Store conversation states
@@ -75,7 +76,26 @@ def generate_venue_recommendations(data: dict) -> List[dict]:
                 "address": "Actual Street Address",
                 "capacity": "Specific capacity range",
                 "features": ["Real Feature 1", "Real Feature 2", "Real Feature 3"],
-                "source": "Actual website URL"
+                "source": "Actual website URL",
+                "state": "Actual state",
+                "time": "{data['time']}",
+                "date": "{data['date']}",
+                "budget": "{data['budget']}",
+                "attendees": "{data['attendees']}"
+            }}
+        ]
+        "predictionData": [
+            {{
+                "name": "Real Venue Name",
+                "address": "Actual Street Address",
+                "capacity": "Specific capacity range",
+                "features": ["Real Feature 1", "Real Feature 2", "Real Feature 3"],
+                "source": "Actual website URL",
+                "date": "Actual date",
+                "time": "Actual time",
+                "budget": "Actual budget",
+                "attendees": "Actual attendees",
+                "state": "Actual state"
             }}
         ]
     }}"""
@@ -123,7 +143,6 @@ def validate_input(question_type: str, user_input: str) -> tuple[bool, str]:
         return True, user_input
     elif question_type == "date":
         try:
-            # Basic date validation
             if not re.match(r'\d{1,2}[-/]\d{1,2}[-/]\d{2,4}', user_input):
                 return False, "I need a valid date format (DD/MM/YYYY or MM/DD/YYYY). "
             return True, user_input
@@ -134,13 +153,11 @@ def validate_input(question_type: str, user_input: str) -> tuple[bool, str]:
             return False, "I need a valid time format (e.g., 14:30 or 2:30 PM). "
         return True, user_input
     elif question_type == "budget":
-        # Remove currency symbols and commas
         budget = ''.join(c for c in user_input if c.isdigit())
         if not budget:
             return False, "I need a numeric budget amount. Please provide a number. "
         return True, budget
     elif question_type == "attendees":
-        # Remove commas and check if it's a number
         attendees = ''.join(c for c in user_input if c.isdigit())
         if not attendees:
             return False, "I need a number of attendees. Please provide a numeric value. "
@@ -153,7 +170,6 @@ async def handle_message(request: MessageRequest):
     try:
         conversation_id = request.conversation_id or "default_user"
         
-        # Start new conversation
         if request.message.lower() == "start":
             conversations[conversation_id] = ConversationState()
             return MessageResponse(
@@ -162,7 +178,6 @@ async def handle_message(request: MessageRequest):
                 timestamp=datetime.now()
             )
         
-        # Initialize if conversation doesn't exist
         if conversation_id not in conversations:
             conversations[conversation_id] = ConversationState()
             return MessageResponse(
@@ -173,11 +188,9 @@ async def handle_message(request: MessageRequest):
         
         state = conversations[conversation_id]
         
-        # If we're in the question flow
         if state.current_question < len(state.questions):
             current_q = state.questions[state.current_question]
             
-            # Validate the current answer
             is_valid, processed_input = validate_input(current_q, request.message)
             
             questions_map = {
@@ -196,11 +209,9 @@ async def handle_message(request: MessageRequest):
                     timestamp=datetime.now()
                 )
             
-            # Store the validated answer and move to next question
             state.collected_data[current_q] = processed_input
             state.current_question += 1
             
-            # If there are more questions, ask the next one
             if state.current_question < len(state.questions):
                 next_q = state.questions[state.current_question]
                 return MessageResponse(
@@ -209,10 +220,8 @@ async def handle_message(request: MessageRequest):
                     timestamp=datetime.now()
                 )
             else:
-                # All questions answered, generate venues
                 venues = generate_venue_recommendations(state.collected_data)
                 
-                # Save to JSON after successful venue generation
                 try:
                     with open('event_data.json', 'a') as f:
                         json.dump(state.collected_data, f)
@@ -220,8 +229,9 @@ async def handle_message(request: MessageRequest):
                 except Exception as e:
                     print(f"Error saving to JSON: {str(e)}")
                 
-                # Reset conversation state
                 del conversations[conversation_id]
+                
+                print(venues)
                 
                 return MessageResponse(
                     message="Great! I've found some venues that match your criteria.",
