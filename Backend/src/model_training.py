@@ -7,8 +7,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-openai_api_key = os.getenv("OPENAI_API_KEY")
-
 def train_model(data):
     # Define the prompt template
     prompt_template = """
@@ -39,7 +37,7 @@ def train_model(data):
     )
 
     # Initialize the LLM with your OpenAI API key
-    llm = OpenAI(temperature=0, openai_api_key=openai_api_key)
+    llm = OpenAI(temperature=0, openai_api_key=os.getenv('OPENAI_API_KEY'))
 
     # Create the LLMChain
     model = LLMChain(llm=llm, prompt=prompt)
