@@ -14,6 +14,7 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 
 interface Venue {
   name: string;
@@ -124,6 +125,33 @@ export default function VenueDetailsPage() {
     return { peakHours, avgTraffic, maxTraffic, quietHours, resourceSavings };
   };
 
+  const generateWeatherData = (weatherData: Venue['weather_data']) => {
+    if (!weatherData) return null;
+    
+    // Create 24-hour forecast data with some variation
+    const hours = Array.from({ length: 15 }, (_, i) => `${i + 9}:00`);
+    const baseTemp = weatherData.Temperature;
+    const baseHumidity = weatherData.Humidity;
+    
+    const temperatureData = hours.map((_, i) => {
+      // Temperature typically peaks in afternoon and drops at night
+      const timeOfDay = Math.sin((i / hours.length) * Math.PI) * 3;
+      return baseTemp + timeOfDay + (Math.random() * 2 - 1);
+    });
+
+    const humidityData = hours.map((_, i) => {
+      // Humidity typically inverse to temperature
+      const timeOfDay = -Math.sin((i / hours.length) * Math.PI) * 5;
+      return Math.min(100, Math.max(0, baseHumidity + timeOfDay + (Math.random() * 4 - 2)));
+    });
+
+    return {
+      hours,
+      temperatureData,
+      humidityData
+    };
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
       <div className="max-w-6xl mx-auto">
@@ -152,14 +180,14 @@ export default function VenueDetailsPage() {
               >
                 <div className="flex flex-col md:flex-row gap-8">
                   {/* Left Section - Basic Info */}
-                  <div className="md:w-1/3 flex flex-col justify-between">
-                    <div>
+                  <div className="md:w-1/3 flex flex-col h-full">
+                    <div className="flex-grow space-y-4">
                       <h3 className="font-bold text-2xl mb-4 bg-gradient-to-r from-purple-600 to-pink-600 
                         inline-block text-transparent bg-clip-text">
                         {venue.name || 'Unnamed Venue'}
                       </h3>
-                      <div className="space-y-4">
-                        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                      <div className="space-y-4 h-full">
+                        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl">
                           <p className="text-gray-700 dark:text-gray-300 font-medium mb-2">
                             {venue.address || 'Address not available'}
                           </p>
@@ -168,7 +196,7 @@ export default function VenueDetailsPage() {
                           </p>
                         </div>
 
-                        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl">
                           <p className="text-sm font-semibold mb-2">Features:</p>
                           <ul className="text-sm space-y-1">
                             {venue.features?.map((feature, idx) => (
@@ -179,7 +207,7 @@ export default function VenueDetailsPage() {
                           </ul>
                         </div>
 
-                        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg space-y-3">
+                        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg space-y-3 transform transition-all duration-300 hover:scale-105 hover:shadow-xl">
                           <div>
                             <span className="font-semibold">Accessibility Score: </span>
                             <span className={`${venue.accessibility_score >= 80 ? 'text-green-500' : 'text-red-500'} font-medium`}>
@@ -221,111 +249,218 @@ export default function VenueDetailsPage() {
                         </div>
                       </div>
                     </div>
-                    
-                    <a
-                      href={venue.source}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 text-sm hover:underline mt-4 inline-block font-medium"
-                    >
-                      View More Details →
-                    </a>
                   </div>
 
-                  {/* Middle Section - Traffic Graph */}
-                  <div className="md:w-1/3 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <h3 className="font-semibold text-lg mb-4">Daily Traffic Pattern</h3>
-                    <div className="h-[300px]">
-                      <Line
-                        data={{
-                          labels: generateBostonTrafficData(venue.name).hours,
-                          datasets: [
-                            {
-                              label: 'Visitors',
-                              data: generateBostonTrafficData(venue.name).data,
-                              borderColor: 'rgb(99, 102, 241)',
-                              backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                              tension: 0.4,
-                              fill: true,
-                            },
-                          ],
-                        }}
-                        options={{
-                          responsive: true,
-                          maintainAspectRatio: false,
-                          plugins: {
-                            legend: {
-                              display: false,
-                            },
-                            tooltip: {
-                              backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                              padding: 12,
-                              callbacks: {
-                                label: (context) => `${context.parsed.y} visitors`
-                              }
-                            }
-                          },
-                          scales: {
-                            y: {
-                              beginAtZero: true,
-                              min: 0,
-                              max: 100,
-                              grid: {
-                                color: 'rgba(0, 0, 0, 0.1)',
+                  {/* Middle Section - Traffic & Weather Graphs */}
+                  <div className="md:w-1/3 space-y-4">
+                    {/* Daily Traffic Pattern Graph */}
+                    <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                      <h3 className="font-semibold text-lg mb-4">Daily Traffic Pattern</h3>
+                      <div className="h-[200px]">
+                        <Line
+                          data={{
+                            labels: generateBostonTrafficData(venue.name).hours,
+                            datasets: [
+                              {
+                                label: 'Visitors',
+                                data: generateBostonTrafficData(venue.name).data,
+                                borderColor: 'rgb(99, 102, 241)',
+                                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                                tension: 0.4,
+                                fill: true,
                               },
-                              title: {
-                                display: true,
-                                text: 'Visitors'
-                              }
-                            },
-                            x: {
-                              grid: {
+                            ],
+                          }}
+                          options={{
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                              legend: {
                                 display: false,
                               },
-                              title: {
-                                display: true,
-                                text: 'Time (EST)'
+                              tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                padding: 12,
+                                callbacks: {
+                                  label: (context) => `${context.parsed.y} visitors`
+                                }
+                              }
+                            },
+                            scales: {
+                              y: {
+                                beginAtZero: true,
+                                min: 0,
+                                max: 100,
+                                grid: {
+                                  color: 'rgba(0, 0, 0, 0.1)',
+                                },
+                                title: {
+                                  display: true,
+                                  text: 'Visitors'
+                                }
+                              },
+                              x: {
+                                grid: {
+                                  display: false,
+                                },
+                                title: {
+                                  display: true,
+                                  text: 'Time (EST)'
+                                }
                               }
                             }
-                          }
-                        }}
-                      />
+                          }}
+                        />
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Right Section - AI Insights */}
-                  <div className="md:w-1/3">
+                    {/* Weather Forecast Graph */}
+                    <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                      <h3 className="font-semibold text-lg mb-4">Weather Forecast</h3>
+                      <div className="h-[200px]">
+                        {venue.weather_data && (
+                          <Line
+                            data={{
+                              labels: generateWeatherData(venue.weather_data)?.hours,
+                              datasets: [
+                                {
+                                  label: 'Temperature (°C)',
+                                  data: generateWeatherData(venue.weather_data)?.temperatureData,
+                                  borderColor: 'rgb(239, 68, 68)',
+                                  backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                  tension: 0.4,
+                                  fill: true,
+                                  yAxisID: 'y1',
+                                },
+                                {
+                                  label: 'Humidity (%)',
+                                  data: generateWeatherData(venue.weather_data)?.humidityData,
+                                  borderColor: 'rgb(59, 130, 246)',
+                                  backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                  tension: 0.4,
+                                  fill: true,
+                                  yAxisID: 'y2',
+                                },
+                              ],
+                            }}
+                            options={{
+                              responsive: true,
+                              maintainAspectRatio: false,
+                              plugins: {
+                                legend: {
+                                  position: 'top' as const,
+                                },
+                                tooltip: {
+                                  backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                  padding: 12,
+                                }
+                              },
+                              scales: {
+                                y1: {
+                                  type: 'linear' as const,
+                                  display: true,
+                                  position: 'left' as const,
+                                  title: {
+                                    display: true,
+                                    text: 'Temperature (°C)'
+                                  },
+                                  grid: {
+                                    color: 'rgba(239, 68, 68, 0.1)',
+                                  },
+                                },
+                                y2: {
+                                  type: 'linear' as const,
+                                  display: true,
+                                  position: 'right' as const,
+                                  title: {
+                                    display: true,
+                                    text: 'Humidity (%)'
+                                  },
+                                  grid: {
+                                    display: false,
+                                  },
+                                },
+                                x: {
+                                  grid: {
+                                    display: false,
+                                  },
+                                  title: {
+                                    display: true,
+                                    text: 'Time (EST)'
+                                  }
+                                }
+                              }
+                            }}
+                          />
+                        )}
+                      </div>
+                    </div>
+
                     {showGraph && (() => {
                       const insights = generateVenueInsights(venue.name);
                       return (
-                        <div className="space-y-4">
-                          <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-900">
+                          <h5 className="font-medium text-green-700 dark:text-green-400 mb-2">
+                            Environmental Impact
+                          </h5>
+                          <p className="text-sm text-green-600 dark:text-green-300">
+                            Daily reduction of {insights.resourceSavings.emissions}kg CO2 emissions through 
+                            smart resource management and {insights.resourceSavings.energy}kWh energy optimization.
+                          </p>
+                        </div>
+                      );
+                    })()}
+                  </div>
+
+                  {/* Right Section - AI Insights */}
+                  <div className="md:w-1/3 h-full">
+                    {showGraph && (() => {
+                      const insights = generateVenueInsights(venue.name);
+
+                      const handlePremiumFeature = () => {
+                        toast.success(
+                          'Buy premium version of our app, and let the AI do the booking for you!',
+                          {
+                            duration: 3000,
+                            position: 'top-center',
+                            style: {
+                              background: '#4B5563',
+                              color: '#fff',
+                              padding: '16px',
+                            },
+                          }
+                        );
+                      };
+
+                      return (
+                        <div className="space-y-4 h-full flex flex-col">
+                          <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg flex-grow">
                             <h4 className="text-lg font-semibold mb-4">Traffic Analysis</h4>
                             <div className="grid grid-cols-2 gap-4">
-                              <div className="p-3 bg-white dark:bg-gray-800 rounded-lg text-center">
+                              <div className="p-3 bg-white dark:bg-gray-800 rounded-lg text-center transform transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20">
                                 <p className="text-sm text-gray-600 dark:text-gray-400">Avg Traffic</p>
                                 <p className="text-xl font-bold text-indigo-600">{insights.avgTraffic}</p>
                               </div>
-                              <div className="p-3 bg-white dark:bg-gray-800 rounded-lg text-center">
+                              <div className="p-3 bg-white dark:bg-gray-800 rounded-lg text-center transform transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20">
                                 <p className="text-sm text-gray-600 dark:text-gray-400">Peak Capacity</p>
                                 <p className="text-xl font-bold text-indigo-600">{insights.maxTraffic}</p>
                               </div>
-                              <div className="p-3 bg-white dark:bg-gray-800 rounded-lg text-center">
+                              <div className="p-3 bg-white dark:bg-gray-800 rounded-lg text-center transform transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20">
                                 <p className="text-sm text-gray-600 dark:text-gray-400">Quiet Hours</p>
                                 <p className="text-xl font-bold text-indigo-600">{insights.quietHours}</p>
                               </div>
-                              <div className="p-3 bg-white dark:bg-gray-800 rounded-lg text-center">
+                              <div className="p-3 bg-white dark:bg-gray-800 rounded-lg text-center transform transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20">
                                 <p className="text-sm text-gray-600 dark:text-gray-400">Peak Times</p>
                                 <p className="text-sm font-medium text-indigo-600">{insights.peakHours.length} periods</p>
                               </div>
                             </div>
                           </div>
                           
-                          <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                          <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg flex-grow">
                             <h5 className="font-semibold mb-3">Resource Optimization</h5>
                             <div className="space-y-2">
                               {Object.entries(insights.resourceSavings).map(([key, value]) => (
-                                <div key={key} className="flex justify-between items-center p-2 bg-white dark:bg-gray-800 rounded">
+                                <div key={key} className="flex justify-between items-center p-2 bg-white dark:bg-gray-800 rounded transform transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-green-50 dark:hover:bg-green-900/20">
                                   <span className="text-sm text-gray-600 dark:text-gray-400 capitalize">{key}</span>
                                   <span className="font-medium text-green-600">{value} {
                                     key === 'energy' ? 'kWh' :
@@ -338,14 +473,19 @@ export default function VenueDetailsPage() {
                             </div>
                           </div>
                           
-                          <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-900">
-                            <h5 className="font-medium text-green-700 dark:text-green-400 mb-2">
-                              Environmental Impact
-                            </h5>
-                            <p className="text-sm text-green-600 dark:text-green-300">
-                              Daily reduction of {insights.resourceSavings.emissions}kg CO2 emissions through 
-                              smart resource management and {insights.resourceSavings.energy}kWh energy optimization.
-                            </p>
+                          <div className="flex gap-4 justify-end mt-auto">
+                            <button 
+                              className="px-4 py-2 bg-blue-600 text-white rounded-lg transition-all duration-300 hover:bg-blue-700 hover:scale-105 hover:shadow-lg"
+                              onClick={handlePremiumFeature}
+                            >
+                              Reserve
+                            </button>
+                            <button 
+                              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                              onClick={handlePremiumFeature}
+                            >
+                              Invite
+                            </button>
                           </div>
                         </div>
                       );

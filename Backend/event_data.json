@@ -44,3 +44,7 @@
 {"event_type": "party", "location": "boston", "date": "2025-11-11", "time": "6pm", "budget": "1000", "attendees": "10"}
 {"event_type": "party", "location": "boston", "date": "2025-11-11", "time": "1am", "budget": "1", "attendees": "1"}
 {"event_type": "party", "location": "boston", "date": "2025-11-11", "time": "1am", "budget": "1", "attendees": "1"}
+{"event_type": "party", "location": "boston", "date": "2025-11-11", "time": "1am", "budget": "1", "attendees": "1"}
+{"event_type": "party", "location": "boston", "date": "2025-11-11", "time": "1am", "budget": "1", "attendees": "1"}
+{"event_type": "party", "location": "boston", "date": "2025-11-11", "time": "18:00", "budget": "1000", "attendees": "10"}
+{"event_type": "party", "location": "boston", "date": "2025-11-11", "time": "18:00", "budget": "1100", "attendees": "10"}

@@ -137,7 +137,7 @@ def generate_venue_recommendations(data: dict) -> List[dict]:
 
 def validate_input(question_type: str, user_input: str) -> tuple[bool, str]:
     """Validate user input and return (is_valid, processed_input)"""
-    user_input = user_input.strip()
+    user_input = user_input.strip().lower()
     
     if not user_input:
         return False, "I need an answer to proceed. "
@@ -152,9 +152,46 @@ def validate_input(question_type: str, user_input: str) -> tuple[bool, str]:
         return True, user_input
     elif question_type == "date":
         try:
+            # Convert common word patterns to dates
+            user_input = user_input.lower()
+            
+            # Handle "today", "tomorrow", "day after tomorrow"
+            if "today" in user_input:
+                return True, datetime.now().strftime('%Y-%m-%d')
+            elif "tomorrow" in user_input:
+                return True, (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
+            elif "day after tomorrow" in user_input:
+                return True, (datetime.now() + timedelta(days=2)).strftime('%Y-%m-%d')
+            
+            # Handle "next" patterns (next monday, next week, next month)
+            if "next" in user_input:
+                today = datetime.now()
+                if "week" in user_input:
+                    return True, (today + timedelta(days=7)).strftime('%Y-%m-%d')
+                elif "month" in user_input:
+                    # Add roughly 30 days
+                    return True, (today + timedelta(days=30)).strftime('%Y-%m-%d')
+                else:
+                    # Try to parse day name (next monday, next tuesday, etc.)
+                    for i, day in enumerate(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']):
+                        if day in user_input:
+                            current_day = today.weekday()
+                            target_day = i
+                            days_ahead = target_day - current_day
+                            if days_ahead <= 0:  # Target day has passed this week
+                                days_ahead += 7
+                            return True, (today + timedelta(days=days_ahead)).strftime('%Y-%m-%d')
+            
             # Try different date formats
-            date_formats = ['%d/%m/%Y', '%m/%d/%Y', '%d-%m-%Y', '%m-%d-%Y', 
-                          '%d/%m/%y', '%m/%d/%y', '%d-%m-%y', '%m-%d-%y']
+            date_formats = [
+                '%d/%m/%Y', '%m/%d/%Y', '%d-%m-%Y', '%m-%d-%Y', 
+                '%d/%m/%y', '%m/%d/%y', '%d-%m-%y', '%m-%d-%y',
+                '%B %d, %Y', '%b %d, %Y',  # December 25, 2024 or Dec 25, 2024
+                '%d %B %Y', '%d %b %Y',    # 25 December 2024 or 25 Dec 2024
+                '%Y-%m-%d',                # ISO format
+                '%d.%m.%Y', '%m.%d.%Y',    # Dot format
+                '%d %m %Y', '%m %d %Y'     # Space separated
+            ]
             
             for fmt in date_formats:
                 try:
@@ -168,13 +205,63 @@ def validate_input(question_type: str, user_input: str) -> tuple[bool, str]:
                     continue
             
             # If none of the formats match
-            return False, "Please provide a valid date in DD/MM/YYYY or MM/DD/YYYY format. "
+            return False, "Please provide a valid date (e.g., DD/MM/YYYY, 'next monday', 'December 25, 2024'). "
+            
         except Exception as e:
             return False, "Please provide a valid date. "
     elif question_type == "time":
-        if not re.match(r'\d{1,2}[:]\d{2}|^\d{1,2}\s*(?:am|pm|AM|PM)', user_input):
-            return False, "I need a valid time format (e.g., 14:30 or 2:30 PM). "
-        return True, user_input
+        try:
+            # Remove uncertainty words/phrases
+            uncertainty_words = [
+                'around', 'about', 'approximately', 'maybe', 'may be', 'probably',
+                'likely', 'roughly', 'somewhere', 'circa', 'near', 'close to',
+                'approximately at', 'at about'
+            ]
+            
+            cleaned_input = user_input
+            for word in uncertainty_words:
+                cleaned_input = cleaned_input.replace(word, '').strip()
+            
+            # Handle special time phrases
+            if "noon" in cleaned_input:
+                return True, "12:00"
+            elif "midnight" in cleaned_input:
+                return True, "00:00"
+            
+            # Remove any spaces between numbers and am/pm
+            cleaned_input = re.sub(r'(\d)(am|pm)', r'\1 \2', cleaned_input)
+            cleaned_input = re.sub(r'(\d)([ap]\.m\.)', r'\1 \2', cleaned_input)
+            
+            # Handle various time formats
+            time_patterns = [
+                # 2:30pm, 2:30 pm, 2:30p.m., 14:30
+                (r'^(\d{1,2}):(\d{2})\s*(am|pm|a\.m\.|p\.m\.)?$', 
+                 lambda m: convert_to_24hr(int(m.group(1)), int(m.group(2)), m.group(3))),
+                
+                # 2pm, 2 pm, 2p.m., 14
+                (r'^(\d{1,2})\s*(am|pm|a\.m\.|p\.m\.)?$', 
+                 lambda m: convert_to_24hr(int(m.group(1)), 0, m.group(2))),
+                
+                # 1430, 0230 (military time)
+                (r'^(\d{4})$', 
+                 lambda m: f"{m.group(1)[:2]}:{m.group(1)[2:]}")
+            ]
+            
+            for pattern, converter in time_patterns:
+                match = re.match(pattern, cleaned_input)
+                if match:
+                    formatted_time = converter(match)
+                    # Validate the time is valid
+                    try:
+                        datetime.strptime(formatted_time, '%H:%M')
+                        return True, formatted_time
+                    except ValueError:
+                        continue
+            
+            return False, "Please provide a valid time (e.g., '2:30 PM', '14:30', 'around 6pm', 'maybe noon'). "
+            
+        except Exception as e:
+            return False, "Please provide a valid time. "
     elif question_type == "budget":
         budget = ''.join(c for c in user_input if c.isdigit())
         if not budget:
@@ -187,6 +274,25 @@ def validate_input(question_type: str, user_input: str) -> tuple[bool, str]:
         return True, attendees
     
     return False, "I couldn't understand that. Please try again. "
+
+def convert_to_24hr(hour: int, minute: int, period: str = None) -> str:
+    """Convert time to 24-hour format"""
+    if period:
+        period = period.lower().replace('.', '')
+        if period in ['pm', 'p.m'] and hour != 12:
+            hour += 12
+        elif period in ['am', 'a.m'] and hour == 12:
+            hour = 0
+    
+    # Ensure valid hour
+    if hour > 23:
+        raise ValueError("Invalid hour")
+    
+    # Ensure valid minute
+    if minute > 59:
+        raise ValueError("Invalid minute")
+        
+    return f"{hour:02d}:{minute:02d}"
 
 @app.post("/api/ai_message", response_model=MessageResponse)
 async def handle_message(request: MessageRequest):
