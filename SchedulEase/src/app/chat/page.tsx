@@ -7,10 +7,33 @@ import { Toaster } from "@/components/ui/toaster"
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 
+interface TrafficTimes {
+  travel_time_text: string;
+  travel_time_seconds: number;
+}
+
+interface LocationTraffic {
+  times: {
+    [hour: string]: TrafficTimes;
+  };
+}
+
+interface TrafficData {
+  traffic_data: {
+    [location: string]: LocationTraffic;
+  };
+  average_times: {
+    [location: string]: {
+      average_commute_time: number;
+    };
+  };
+}
+
 interface Message {
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
+  trafficData?: TrafficData;
 }
 
 interface Venue {
@@ -29,6 +52,7 @@ export default function ChatPage() {
   const [venues, setVenues] = useState<Venue[]>([]);
   const { toast } = useToast();
   const router = useRouter();
+  const [loadingText, setLoadingText] = useState("Checking traffic...");
 
   const handleInitialMessage = async () => {
     try {
@@ -55,6 +79,25 @@ export default function ChatPage() {
     handleInitialMessage();
   }, []);
 
+  useEffect(() => {
+    if (isLoading) {
+      const texts = [
+        "Checking traffic...",
+        "Analyzing accessibility...",
+        "Evaluating safety...",
+        "Checking weather conditions..."
+      ];
+      let index = 0;
+
+      const interval = setInterval(() => {
+        index = (index + 1) % texts.length;
+        setLoadingText(texts[index]);
+      }, 2000);
+
+      return () => clearInterval(interval);
+    }
+  }, [isLoading]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
@@ -80,7 +123,11 @@ export default function ChatPage() {
       if (data.type === "venues") {
         setVenues(data.venues);
         router.push('/venue-details?' + new URLSearchParams({
-          venues: JSON.stringify(data.venues)
+          venues: JSON.stringify(data.venues),
+          trafficData: data.traffic_data ? JSON.stringify({
+            traffic_data: data.traffic_data,
+            average_times: data.average_times
+          }) : ''
         }));
       }
 
@@ -88,6 +135,10 @@ export default function ChatPage() {
         role: "assistant",
         content: data.message,
         timestamp: new Date(),
+        trafficData: data.traffic_data ? {
+          traffic_data: data.traffic_data,
+          average_times: data.average_times
+        } : undefined
       };
       setMessages((prev) => [...prev, aiMessage]);
 
@@ -118,28 +169,57 @@ export default function ChatPage() {
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {messages.map((message, index) => (
-              <div
-                key={index}
-                className={`flex ${
-                  message.role === "user" ? "justify-end" : "justify-start"
-                }`}
-              >
-                <div
-                  className={`
-                    max-w-[80%] px-4 py-2 rounded-2xl shadow-sm
-                    ${
-                      message.role === "user"
-                        ? "bg-blue-600 text-white rounded-br-none"
-                        : "bg-white dark:bg-gray-800 rounded-bl-none border dark:border-gray-700"
-                    }
-                  `}
-                >
-                  <div className={`text-sm ${
-                    message.role === "user" ? "text-white" : "text-gray-800 dark:text-gray-200"
-                  }`}>
-                    {message.content}
+              <div key={index}>
+                <div className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+                  <div
+                    className={`
+                      max-w-[80%] px-4 py-2 rounded-2xl shadow-sm
+                      ${
+                        message.role === "user"
+                          ? "bg-blue-600 text-white rounded-br-none"
+                          : "bg-white dark:bg-gray-800 rounded-bl-none border dark:border-gray-700"
+                      }
+                    `}
+                  >
+                    <div className={`text-sm ${
+                      message.role === "user" ? "text-white" : "text-gray-800 dark:text-gray-200"
+                    }`}>
+                      {message.content}
+                    </div>
                   </div>
                 </div>
+                
+                {message.trafficData && (
+                  <div className="mt-4 space-y-4">
+                    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+                      <h3 className="font-semibold text-lg mb-2">Traffic Information</h3>
+                      
+                      {Object.entries(message.trafficData.traffic_data).map(([location, data]) => (
+                        <div key={location} className="mb-4">
+                          <h4 className="font-medium text-md">{location}</h4>
+                          <div className="grid grid-cols-3 gap-2 mt-2">
+                            {Object.entries(data.times).map(([time, timeData]) => (
+                              <div key={time} className="text-sm">
+                                {time}: {timeData.travel_time_text}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                      
+                      <div className="mt-4">
+                        <h4 className="font-medium text-md mb-2">Average Commute Times</h4>
+                        <div className="grid grid-cols-2 gap-2">
+                          {Object.entries(message.trafficData.average_times).map(([location, data]) => (
+                            <div key={location} className="text-sm">
+                              {location}: {Math.round(data.average_commute_time / 60)} mins
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
 
@@ -175,8 +255,8 @@ export default function ChatPage() {
             {isLoading && (
               <div className="flex justify-start">
                 <div className="bg-white dark:bg-gray-800 px-4 py-2 rounded-2xl rounded-bl-none border dark:border-gray-700">
-                  <span className="text-gray-400 dark:text-gray-500 animate-pulse">
-                    Typing...
+                  <span className="text-gray-400 dark:text-gray-500 animate-fade-in-out">
+                    {loadingText}
                   </span>
                 </div>
               </div>
