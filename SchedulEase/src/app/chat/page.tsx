@@ -5,6 +5,7 @@ import { Send } from "lucide-react";
 import axios from "axios";
 import { Toaster } from "@/components/ui/toaster"
 import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 interface Message {
   role: "user" | "assistant";
@@ -27,6 +28,7 @@ export default function ChatPage() {
   const [conversationId] = useState(crypto.randomUUID());
   const [venues, setVenues] = useState<Venue[]>([]);
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleInitialMessage = async () => {
     try {
@@ -77,6 +79,9 @@ export default function ChatPage() {
 
       if (data.type === "venues") {
         setVenues(data.venues);
+        router.push('/venue-details?' + new URLSearchParams({
+          venues: JSON.stringify(data.venues)
+        }));
       }
 
       const aiMessage: Message = {

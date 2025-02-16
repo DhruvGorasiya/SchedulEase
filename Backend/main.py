@@ -31,7 +31,6 @@ class ConversationState:
     def __init__(self):
         self.current_question = 0
         self.collected_data = {}
-        # Simplified question structure - we'll let the AI handle the details
         self.questions = [
             "event_type",
             "location",
