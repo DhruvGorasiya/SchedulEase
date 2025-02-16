@@ -46,7 +46,7 @@ const items = [
     icon: Home,
   },
   {
-    title: "Posts",
+    title: "Reservations",
     url: "#",
     icon: Inbox,
   },
