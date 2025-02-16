@@ -10,12 +10,17 @@ from openai import OpenAI
 import time
 from datetime import datetime, timedelta
 import googlemaps
+from dotenv import load_dotenv  # Import dotenv
+import random
+
+# Load environment variables
+load_dotenv()
 
 app = FastAPI()
 
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
-gmaps = googlemaps.Client(key='') #look in whatsapp for key
+gmaps = googlemaps.Client(key=os.getenv('GOOGLE_API_KEY')) #look in whatsapp for key
 
 # Clear conversations periodically (optional)
 @app.on_event("startup")
@@ -264,7 +269,8 @@ async def handle_message(request: MessageRequest):
                         
                         # Get accessibility score and add it to venue
                         random_features = generate_random_features()
-                        venue['accessibility_score'] = predict(random_features)
+                        venue['accessibility_score'] =random.randint(70, 95)
+                        #predict(random_features)
                         
                         # Add weather and safety data to each venue
                         venue['weather_data'] = predictWeather()
@@ -385,48 +391,58 @@ class VenueFeatures(BaseModel):
     lighting: str
     noise_level: str
 
-# Load the model and preprocess data when the app starts
-data = preprocess_data("data/mock_venue_accessibility_data.csv")
-model = train_model(data)
+# # Load the model and preprocess data when the app starts
+# data = preprocess_data("data/mock_venue_accessibility_data.csv")
+# model = train_model(data)
 
-# Define the /predict-accessibility-score endpoint
+# # Define the /predict-accessibility-score endpoint
+# @app.post("/predict-accessibility-score")
+# def predict(features: VenueFeatures):
+#     try:
+#         # Convert input data to a dictionary
+#         input_data = features.dict()
+        
+#         # Make a prediction
+#         prediction = predict_accessibility_score(model, input_data)
+        
+#         # Clean the prediction (remove newlines, spaces, etc.)
+#         prediction = prediction.strip()  # Remove leading/trailing whitespace
+#         prediction = "".join(prediction.split())  # Remove all whitespace
+        
+#         # Convert the prediction to a float or int
+#         try:
+#             score = float(prediction)  # Convert to float
+#             if score.is_integer():  # Check if it's an integer
+#                 score = int(score)
+#         except ValueError:
+#             raise HTTPException(status_code=500, detail="Invalid prediction format")
+        
+#         # Return the prediction
+#         return {"accessibility_score": score}
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/predict-accessibility-score")
-def predict(features: VenueFeatures):
-    try:
-        # Convert input data to a dictionary
-        input_data = features.dict()
-        
-        # Make a prediction
-        prediction = predict_accessibility_score(model, input_data)
-        
-        # Clean the prediction (remove newlines, spaces, etc.)
-        prediction = prediction.strip()  # Remove leading/trailing whitespace
-        prediction = "".join(prediction.split())  # Remove all whitespace
-        
-        # Convert the prediction to a float or int
-        try:
-            score = float(prediction)  # Convert to float
-            if score.is_integer():  # Check if it's an integer
-                score = int(score)
-        except ValueError:
-            raise HTTPException(status_code=500, detail="Invalid prediction format")
-        
-        # Return the prediction
-        return {"accessibility_score": score}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+def predictAccessibility(features: VenueFeatures):
+    score = random.randint(75, 90)  # Generates a random score between 75 and 90
+    return {"accessibility_score": score}
     
 @app.get("/weather-report")
 def predictWeather():
     return {
-        "Temperature": 22.5,
-        "Humidity": 60,
-        "WindSpeed": 15,
-        "PrecipitationProbability": 30
+        "Temperature": round(random.uniform(10, 35), 1),  # Temperature in °C (10°C - 35°C)
+        "Humidity": random.randint(30, 90),  # Humidity in percentage (30% - 90%)
+        "WindSpeed": round(random.uniform(5, 25), 1),  # Wind Speed in km/h (5km/h - 25km/h)
+        "PrecipitationProbability": random.randint(0, 100)  # Probability of rain (0% - 100%)
     }
+
+
 def safetyReport():
+    levels = ["Low", "Moderate", "High"]
+    probabilities = [0.4, 0.4, 0.2]  # Corresponding probabilities
+
     return {
-        "Hostility": "High"
+        "Hostility": random.choices(levels, probabilities)[0]
     }
 
 def generate_random_features() -> VenueFeatures:

@@ -32,3 +32,6 @@
 {"event_type": "marriage", "location": "boston", "date": "2025-05-16", "time": "2PM", "budget": "10000", "attendees": "20"}
 {"event_type": "marriage", "location": "Boston", "date": "2025-05-19", "time": "2PM", "budget": "1000", "attendees": "11"}
 {"event_type": "wedding", "location": "boston", "date": "2025-12-02", "time": "2PM", "budget": "1000", "attendees": "100"}
+{"event_type": "i want a divorce", "location": "Houston", "date": "2025-08-31", "time": "9:30 AM", "budget": "500", "attendees": "20"}
+{"event_type": "wedding for akshu", "location": "San Francisco", "date": "2026-06-24", "time": "4 PM", "budget": "10000", "attendees": "50"}
+{"event_type": "wedding", "location": "boston", "date": "2026-12-13", "time": "9 AM", "budget": "450", "attendees": "4"}

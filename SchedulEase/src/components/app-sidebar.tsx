@@ -67,7 +67,7 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>BrightMind</SidebarGroupLabel>
+          <SidebarGroupLabel>SchedulEase</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (

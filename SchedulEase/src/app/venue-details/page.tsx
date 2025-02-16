@@ -49,12 +49,13 @@ export default function VenueDetailsPage() {
   const [showGraph, setShowGraph] = useState(true);
 
   const generateBostonTrafficData = (venueName: string) => {
-    const hours = Array.from({ length: 24 }, (_, i) => `${i}:00`);
+    const hours = Array.from({ length: 15 }, (_, i) => `${i + 9}:00`);
     
     // Create a seed from venue name
     const nameSeed = venueName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     
     // Generate data with Boston-specific patterns
+  
     const data = hours.map((_, index) => {
       // Base variation from venue name
       const baseValue = (nameSeed + index) % 20;
@@ -89,11 +90,12 @@ export default function VenueDetailsPage() {
       // Weather factor (Boston weather impact)
       const weatherFactor = Math.sin(nameSeed + index) * 5;
       
-      // Combine all factors and ensure value is between 20-90
+      
       return Math.floor(Math.max(20, Math.min(90, baseValue + timePattern + randomNoise + weatherFactor)));
     });
-
+    
     return { hours, data };
+
   };
 
   const generateVenueInsights = (venueName: string) => {
@@ -175,7 +177,7 @@ export default function VenueDetailsPage() {
                 </div>
 
                 {/* Additional Info - Visible on Hover */}
-                <div className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="mt-4 transition-opacity duration-300">
                   <div className="border-t pt-4">
                     <div className="mb-2">
                       <span className="font-semibold">Accessibility Score: </span>
