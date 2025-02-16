@@ -41,16 +41,47 @@ export default function VenueDetailsPage() {
               <div className="h-full w-full bg-white dark:bg-gray-800 rounded-lg p-6 
                 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95
                 before:absolute before:inset-0 before:bg-texture before:opacity-5 before:mix-blend-overlay">
-                {/* Empty tooltip that appears on hover */}
-                <div className="absolute invisible group-hover:visible opacity-0 group-hover:opacity-100 
-                  transition-opacity duration-300 -top-16 left-1/2 -translate-x-1/2 
-                  bg-gray-900 w-64 h-32 rounded-lg shadow-lg z-10">
+                {/* Tooltip with venue data */}
+                <div className="fixed inset-0 invisible group-hover:visible opacity-0 group-hover:opacity-100 
+                  transition-all duration-300 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                  <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-md w-full 
+                    transform scale-95 group-hover:scale-100 transition-all duration-300">
+                    <h4 className="text-2xl font-bold text-black mb-4">{venue.name}</h4>
+                    <div className="space-y-4">
+                      <div>
+                        <p className="text-black font-medium">Address:</p>
+                        <p className="text-black">{venue.address}</p>
+                      </div>
+                      <div>
+                        <p className="text-black font-medium">Capacity:</p>
+                        <p className="text-black">{venue.capacity}</p>
+                      </div>
+                      <div>
+                        <p className="text-black font-medium mb-2">Features:</p>
+                        <ul className="list-disc list-inside">
+                          {venue.features.map((feature, idx) => (
+                            <li key={idx} className="text-black">{feature}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      {venue.source && (
+                        <a 
+                          href={venue.source}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-block mt-4 text-blue-600 hover:underline"
+                        >
+                          More Info
+                        </a>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
                 <h3 className="font-semibold text-xl mb-2 bg-gradient-to-r from-purple-600 to-pink-600 
                   inline-block text-transparent bg-clip-text">{venue.name}</h3>
                 <p className="text-gray-600 dark:text-gray-400 mb-2">{venue.address}</p>
-                <p className="text-sm mb-4">{venue.capacity}</p>
+                <p className="text-sm mb-4">{`Capacity: ${venue.capacity}`}</p>
                 <div className="mb-4">
                   <p className="text-sm font-semibold mb-2">Features:</p>
                   <ul className="text-sm list-disc list-inside">
