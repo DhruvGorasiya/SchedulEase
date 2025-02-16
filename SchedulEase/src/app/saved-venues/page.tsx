@@ -68,33 +68,6 @@ export default function SavedVenuesPage() {
     fetchSavedVenues();
   }, []);
 
-  const handleDeleteVenue = async (venue: Venue) => {
-    try {
-      await axios.delete(`http://localhost:8000/api/saved-venues/${venue.name}`);
-      setVenues(venues.filter(v => v.name !== venue.name));
-      
-      toast.success('Venue deleted successfully!', {
-        duration: 3000,
-        position: 'top-center',
-        style: {
-          background: '#4B5563',
-          color: '#fff',
-          padding: '16px',
-        },
-      });
-    } catch (error) {
-      toast.error('Failed to delete venue', {
-        duration: 3000,
-        position: 'top-center',
-        style: {
-          background: '#EF4444',
-          color: '#fff',
-          padding: '16px',
-        },
-      });
-    }
-  };
-
   const generateBostonTrafficData = (venueName: string) => {
     const hours = Array.from({ length: 15 }, (_, i) => `${i + 9}:00`);
     const nameSeed = venueName.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -188,8 +161,11 @@ export default function SavedVenuesPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-8">
-            {venues.map((venue) => (
-              <div key={venue.name} className="bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 p-0.5 rounded-xl shadow-lg relative">
+            {venues.map((venue, index) => (
+              <div 
+                key={`${venue.name}-${venue.address}-${index}`} 
+                className="bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 p-0.5 rounded-xl shadow-lg relative"
+              >
                 <div className="h-full w-full bg-white dark:bg-gray-800 rounded-xl p-8 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95">
                   <div className="flex flex-col md:flex-row gap-8">
                     <div className="md:w-1/3 flex flex-col h-full">
@@ -357,15 +333,6 @@ export default function SavedVenuesPage() {
                           </>
                         );
                       })()}
-
-                      <div className="flex justify-end">
-                        <button
-                          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                          onClick={() => handleDeleteVenue(venue)}
-                        >
-                          Delete
-                        </button>
-                      </div>
                     </div>
                   </div>
                 </div>

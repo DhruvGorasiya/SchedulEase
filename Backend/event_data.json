@@ -9,3 +9,11 @@
 {"event_type": "party", "location": "boston", "date": "2025-11-11", "time": "18:00", "budget": "500", "attendees": "100"}
 {"event_type": "marriage", "location": "boston", "date": "2025-03-14", "time": "14:00", "budget": "10000", "attendees": "10"}
 {"event_type": "party", "location": "boston", "date": "2025-11-11", "time": "18:00", "budget": "500", "attendees": "100"}
+{"event_type": "party", "location": "cambridge", "date": "2025-04-23", "time": "18:00", "budget": "5000", "attendees": "30"}
+{"event_type": "partt", "location": "cambridge", "date": "2025-05-24", "time": "16:00", "budget": "500", "attendees": "3"}
+{"event_type": "party", "location": "cambridge", "date": "2025-05-24", "time": "18:00", "budget": "5000", "attendees": "67"}
+{"event_type": "party", "location": "bosntno", "date": "2025-11-11", "time": "02:00", "budget": "10000", "attendees": "100"}
+{"event_type": "party", "location": "boston", "date": "2025-11-11", "time": "14:00", "budget": "1000", "attendees": "100"}
+{"event_type": "party", "location": "boston", "date": "2025-11-26", "time": "18:00", "budget": "1000", "attendees": "100"}
+{"event_type": "party", "location": "boston", "date": "2025-11-26", "time": "18:00", "budget": "1000", "attendees": "100"}
+{"event_type": "party", "location": "boston", "date": "2025-11-26", "time": "18:00", "budget": "1000", "attendees": "100"}

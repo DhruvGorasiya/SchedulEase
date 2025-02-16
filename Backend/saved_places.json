@@ -1,51 +1,49 @@
 {
   "venues": [
     {
-      "name": "The Banshee",
-      "address": "934 Dorchester Ave, Boston, MA 02125",
-      "capacity": "Up to 200",
+      "name": "The Atrium at Society on High",
+      "address": "31 High St, Boston, MA 02110",
+      "capacity": "Up to 120",
       "features": [
-        "Private event space",
-        "Full bar",
-        "High-definition screens",
-        "Outdoor patio"
+        "Natural Light",
+        "In-house catering options",
+        "AV Equipment Available"
       ],
-      "source": "https://www.bansheeboston.com",
-      "accessibility_score": 87.0,
+      "source": "https://www.societyonhigh.com/",
+      "accessibility_score": 79.0,
       "weather_data": {
-        "Temperature": 24.0,
-        "Humidity": 43,
-        "WindSpeed": 16.6,
-        "PrecipitationProbability": 9
+        "Temperature": 31.5,
+        "Humidity": 33,
+        "WindSpeed": 15.7,
+        "PrecipitationProbability": 52
       },
       "safety_data": {
-        "Hostility": "Moderate"
+        "Hostility": "Low"
       },
-      "date": "2025-11-11",
+      "date": "2025-11-26",
       "event_type": "party"
     },
     {
-      "name": "The Banshee",
-      "address": "934 Dorchester Ave, Boston, MA 02125",
-      "capacity": "Up to 200",
+      "name": "The Salem Waterfront Hotel & Suites",
+      "address": "225 Derby St, Salem, MA 01970",
+      "capacity": "Up to 100",
       "features": [
-        "Private event space",
-        "Full bar",
-        "High-definition screens",
-        "Outdoor patio"
+        "Scenic Waterfront Views",
+        "Event Planning Services",
+        "Free Wi-Fi"
       ],
-      "source": "https://www.bansheeboston.com",
-      "accessibility_score": 87.0,
+      "source": "https://www.salemwaterfronthotel.com/",
+      "accessibility_score": 88.0,
       "weather_data": {
-        "Temperature": 24.0,
-        "Humidity": 43,
-        "WindSpeed": 16.6,
-        "PrecipitationProbability": 9
+        "Temperature": 26.3,
+        "Humidity": 90,
+        "WindSpeed": 20.0,
+        "PrecipitationProbability": 57
       },
       "safety_data": {
-        "Hostility": "Moderate"
+        "Hostility": "Low"
       },
-      "date": "2025-11-11",
+      "date": "2025-11-26",
       "event_type": "party"
     }
   ]

@@ -54,7 +54,7 @@ export default function HomePage() {
               Your Journey to Finding the Perfect Venue
             </h2>
             <p className="text-gray-700 dark:text-gray-300 mb-6 text-lg leading-relaxed">
-              EventFinder provides a seamless experience for booking venues for
+              SchedulEase provides a seamless experience for booking venues for
               your events. Discover options, resources, and guidance to enhance
               your event planning.
             </p>
