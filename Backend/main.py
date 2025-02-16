@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 import googlemaps
 from dotenv import load_dotenv  # Import dotenv
 import random
+from pathlib import Path
 
 # Load environment variables
 load_dotenv()
@@ -61,6 +62,27 @@ class MessageResponse(BaseModel):
 class PlaceResponse(BaseModel):
     places: List[dict]
     timestamp: datetime = Field(default_factory=datetime.now)
+
+class VenueWeatherData(BaseModel):
+    Temperature: float
+    Humidity: int
+    WindSpeed: float
+    PrecipitationProbability: int
+
+class VenueSafetyData(BaseModel):
+    Hostility: str
+
+class SaveVenueRequest(BaseModel):
+    name: str
+    address: str
+    capacity: str
+    features: List[str]
+    source: str
+    accessibility_score: float
+    weather_data: VenueWeatherData
+    safety_data: VenueSafetyData
+    date: str
+    event_type: str
 
 # Store conversation states
 conversations: Dict[str, ConversationState] = {}
@@ -640,6 +662,45 @@ async def generate_random_places(event_type: str = "party"):
             "estimated_cost": "Unknown",
             "event_types": [event_type]
         }])
+
+@app.post("/api/save-venue")
+async def save_venue(venue: SaveVenueRequest):
+    try:
+        # Create the file if it doesn't exist
+        saved_places_file = Path('saved_places.json')
+        if not saved_places_file.exists():
+            saved_places_file.write_text('{"venues": []}')
+
+        # Read existing venues
+        with open('saved_places.json', 'r') as f:
+            data = json.load(f)
+
+        # Add new venue
+        data['venues'].append(venue.dict())
+
+        # Write back to file
+        with open('saved_places.json', 'w') as f:
+            json.dump(data, f, indent=2)
+
+        return {"message": "Venue saved successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save venue: {str(e)}")
+
+@app.get("/api/saved-venues")
+async def get_saved_venues():
+    try:
+        # Check if the file exists
+        saved_places_file = Path('saved_places.json')
+        if not saved_places_file.exists():
+            return {"venues": []}
+
+        # Read and return the saved venues
+        with open('saved_places.json', 'r') as f:
+            data = json.load(f)
+            
+        return data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve saved venues: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

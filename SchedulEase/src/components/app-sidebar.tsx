@@ -51,6 +51,11 @@ const items = [
     icon: Inbox,
   },
   {
+    title: "Saved Venues",
+    url: "/saved-venues",
+    icon: Inbox,
+  },
+  {
     title: "Inbox",
     url: "#",
     icon: Calendar,

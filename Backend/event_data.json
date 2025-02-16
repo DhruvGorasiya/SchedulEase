@@ -1,2 +1,10 @@
 {"event_type": "party", "location": "boston", "date": "2025-11-26", "time": "21:00", "budget": "500", "attendees": "20"}
 {"event_type": "party", "location": "boston", "date": "2025-11-11", "time": "18:00", "budget": "1000", "attendees": "10"}
+{"event_type": "party", "location": "boston", "date": "2025-11-11", "time": "18:00", "budget": "10000", "attendees": "10"}
+{"event_type": "wedding", "location": "boston", "date": "2025-02-25", "time": "14:00", "budget": "1000", "attendees": "100"}
+{"event_type": "party", "location": "boston", "date": "2025-11-11", "time": "18:00", "budget": "500", "attendees": "100"}
+{"event_type": "party", "location": "boston", "date": "2025-11-26", "time": "18:00", "budget": "500", "attendees": "20"}
+{"event_type": "party", "location": "boston", "date": "2025-05-11", "time": "18:00", "budget": "1", "attendees": "1"}
+{"event_type": "party", "location": "boston", "date": "2025-05-11", "time": "18:00", "budget": "100", "attendees": "100"}
+{"event_type": "party", "location": "boston", "date": "2025-11-11", "time": "18:00", "budget": "500", "attendees": "100"}
+{"event_type": "marriage", "location": "boston", "date": "2025-03-14", "time": "14:00", "budget": "10000", "attendees": "10"}

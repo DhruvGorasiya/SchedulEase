@@ -58,18 +58,18 @@ export default function HomePage() {
               your events. Discover options, resources, and guidance to enhance
               your event planning.
             </p>
-            <div className="flex gap-4 flex-wrap">
-              {/* <button
-                className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-lg text-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-md"
-                onClick={() => router.push("/venue-check")}
-              >
-                How can we help you find a venue today?
-              </button> */}
+            <div className="flex gap-4">
               <button
                 className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-3 rounded-lg text-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-md"
                 onClick={() => router.push("/chat")}
               >
                 Use AI to find a perfect place for you
+              </button>
+              <button
+                onClick={() => setShowVenues(true)}
+                className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-lg text-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-md"
+              >
+                Not sure yet? Let AI help you find some suggestions...
               </button>
             </div>
           </section>
@@ -98,16 +98,6 @@ export default function HomePage() {
               </p>
             </div>
           </section> */}
-
-          {/* Add the new button */}
-          <div className="text-center mt-12">
-            <button
-              onClick={() => setShowVenues(true)}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-lg text-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-md"
-            >
-              Not sure yet? Let AI help you find some suggestions...
-            </button>
-          </div>
 
           {/* Modify the Random Places Section to only show when showVenues is true */}
           {showVenues && (
