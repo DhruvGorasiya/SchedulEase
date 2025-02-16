@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 from pydantic import BaseModel
 from src.data_preprocessing import preprocess_data
 from src.model_training import train_model
+from src.SafetyPredictor import run_security_workflow
 from src.prediction import predict_accessibility_score
 import googlemaps
 
@@ -340,6 +341,12 @@ class VenueFeatures(BaseModel):
     lighting: str
     noise_level: str
 
+class VenueSafetyFeatures(BaseModel):
+    lat: float
+    long: float
+    tweets: list
+    datetimeobject: datetime
+
 # Load the model and preprocess data when the app starts
 data = preprocess_data("data/mock_venue_accessibility_data.csv")
 model = train_model(data)
@@ -379,11 +386,15 @@ def predictWeather():
         "WindSpeed": 15,
         "PrecipitationProbability": 30
     }
-def safetyReport():
-    return {
-        "Hostility": "High"
-    }
-
+@app.post("/predict-safety")
+def safetyReport(features: VenueSafetyFeatures):
+    try:
+        safetyReport = run_security_workflow(features.lat, features.long, features.datetimeobject, features.tweets)
+        return {
+            "Hostility": safetyReport
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import uvicorn
