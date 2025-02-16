@@ -7,18 +7,20 @@ import json
 import re
 import os
 from openai import OpenAI
+import time
+from datetime import datetime, timedelta
+import googlemaps
 
 app = FastAPI()
 
-# Initialize OpenAI client at the top level
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
-# Clear conversations periodically (optional)
+gmaps = googlemaps.Client(key="AIzaSyBdt8jAccY8QyvwotmIr9zrQKThFEuurrU") #look in whatsapp for key
+
 @app.on_event("startup")
 async def startup_event():
     conversations.clear()
 
-# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -48,7 +50,7 @@ class MessageResponse(BaseModel):
     message: str
     type: str = "question"  # can be "question", "error", "venues", or "summary"
     venues: Optional[List[dict]] = None
-    predictionData: Optional[List[dict]] = None
+    traffic: Optional[List[dict]] = None
     timestamp: datetime = Field(default_factory=datetime.now)
 
 # Store conversation states
@@ -58,7 +60,7 @@ def generate_venue_recommendations(data: dict) -> List[dict]:
     # Remove client initialization from here since we're using the global client
     
     # Construct a more detailed prompt for realistic venues
-    prompt = f"""As an expert event planner, recommend 20 real and currently operating venues in {data['location']} that would be perfect for a {data['event_type']} with {data['attendees']} attendees and a budget of {data['budget']}.
+    prompt = f"""As an expert event planner, recommend 10 real and currently operating venues in {data['location']} that would be perfect for a {data['event_type']} with {data['attendees']} attendees and a budget of {data['budget']}.
 
     Research and provide real venues that actually exist, including:
     - The venue's real name and actual location
@@ -81,21 +83,7 @@ def generate_venue_recommendations(data: dict) -> List[dict]:
                 "time": "{data['time']}",
                 "date": "{data['date']}",
                 "budget": "{data['budget']}",
-                "attendees": "{data['attendees']}"
-            }}
-        ]
-        "predictionData": [
-            {{
-                "name": "Real Venue Name",
-                "address": "Actual Street Address",
-                "capacity": "Specific capacity range",
-                "features": ["Real Feature 1", "Real Feature 2", "Real Feature 3"],
-                "source": "Actual website URL",
-                "date": "Actual date",
-                "time": "Actual time",
-                "budget": "Actual budget",
-                "attendees": "Actual attendees",
-                "state": "Actual state"
+                "attendees": "{data['attendees']}",
             }}
         ]
     }}"""
@@ -143,10 +131,24 @@ def validate_input(question_type: str, user_input: str) -> tuple[bool, str]:
         return True, user_input
     elif question_type == "date":
         try:
-            if not re.match(r'\d{1,2}[-/]\d{1,2}[-/]\d{2,4}', user_input):
-                return False, "I need a valid date format (DD/MM/YYYY or MM/DD/YYYY). "
-            return True, user_input
-        except:
+            # Try different date formats
+            date_formats = ['%d/%m/%Y', '%m/%d/%Y', '%d-%m-%Y', '%m-%d-%Y', 
+                          '%d/%m/%y', '%m/%d/%y', '%d-%m-%y', '%m-%d-%y']
+            
+            for fmt in date_formats:
+                try:
+                    parsed_date = datetime.strptime(user_input, fmt)
+                    # Check if date is not in the past
+                    if parsed_date.date() < datetime.now().date():
+                        return False, "Please provide a future date. The event cannot be scheduled in the past. "
+                    # Convert to YYYY-MM-DD format
+                    return True, parsed_date.strftime('%Y-%m-%d')
+                except ValueError:
+                    continue
+            
+            # If none of the formats match
+            return False, "Please provide a valid date in DD/MM/YYYY or MM/DD/YYYY format. "
+        except Exception as e:
             return False, "Please provide a valid date. "
     elif question_type == "time":
         if not re.match(r'\d{1,2}[:]\d{2}|^\d{1,2}\s*(?:am|pm|AM|PM)', user_input):
@@ -221,6 +223,26 @@ async def handle_message(request: MessageRequest):
                 )
             else:
                 venues = generate_venue_recommendations(state.collected_data)
+                traffic = []  # Initialize the traffic list
+                
+                for venue in venues:
+                    try:
+                        city = venue['address'].split(',')[1].strip()  # Access address as dictionary key
+                        destination = venue['name'] + ', ' + city
+                        # Handle different possible date formats
+                        try:
+                            date = datetime.strptime(state.collected_data['date'], '%d/%m/%Y').strftime('%Y-%m-%d')
+                        except ValueError:
+                            try:
+                                date = datetime.strptime(state.collected_data['date'], '%m/%d/%Y').strftime('%Y-%m-%d')
+                            except ValueError:
+                                date = state.collected_data['date']  # Use as-is if already in correct format
+                        
+                        traffic_data = get_traffic_data(city, destination, date)
+                        traffic.append(traffic_data)
+                    except Exception as e:
+                        print(f"Error processing traffic data for venue {venue.get('name')}: {str(e)}")
+                        continue
                 
                 try:
                     with open('event_data.json', 'a') as f:
@@ -231,17 +253,93 @@ async def handle_message(request: MessageRequest):
                 
                 del conversations[conversation_id]
                 
-                print(venues)
+                print(traffic)
                 
                 return MessageResponse(
                     message="Great! I've found some venues that match your criteria.",
                     type="venues",
                     venues=venues,
+                    traffic=traffic,
                     timestamp=datetime.now()
                 )
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+def get_transport_locations(city_name, airport=False):
+    geocode_result = gmaps.geocode(city_name)
+    
+    if not geocode_result:
+        return f"City '{city_name}' not found."
+
+    city_location = geocode_result[0]['geometry']['location']
+    lat, lng = city_location['lat'], city_location['lng']
+
+    transport_types = ['train_station', 'airport'] if not airport else ['airport']
+    transport_locations = []
+
+    for transport_type in transport_types:
+        places_result = gmaps.places_nearby((lat, lng), radius=5000, type=transport_type)
+        
+        for place in places_result.get('results', []):
+            transport_locations.append(place['name'] + ', ' + city_name)
+    
+    return transport_locations
+
+@app.get("/traffic")
+def get_traffic_data(city_name: str, destination: str, future_date: str):
+    start_time = datetime.strptime(future_date, "%Y-%m-%d")
+    data_collection = {}
+    airport_locations = get_transport_locations(city_name,True)[:1]
+    transport_locations=get_transport_locations(city_name)[:5]
+
+    
+    # Loop from 9 AM to midnight
+    for hour in range(9, 24):
+        current_time = start_time + timedelta(hours=hour)
+        unix_timestamp = int(time.mktime(current_time.timetuple()))
+        
+        traffic_results = gmaps.distance_matrix(
+            origins=airport_locations,
+            destinations=destination,
+            departure_time=unix_timestamp,
+            traffic_model="best_guess",
+            mode="driving"
+        )
+        
+        for j, origin in enumerate(airport_locations):
+            duration_text = traffic_results["rows"][j]["elements"][0].get("duration_in_traffic", {}).get("text", "N/A")
+            duration_value = traffic_results["rows"][j]["elements"][0].get("duration_in_traffic", {}).get("value", None)
+            
+            if origin not in data_collection:
+                data_collection[origin] = {"times": {}}
+            
+            data_collection[origin]["times"][current_time.strftime("%H:%M")] = {
+                "travel_time_text": duration_text,
+                "travel_time_seconds": duration_value
+            }
+            
+    # Calculate average commute times for all 5 locations
+    average_times = {}
+    for origin in transport_locations:
+        traffic_results = gmaps.distance_matrix(
+            origins=[origin],
+            destinations=[destination],
+            departure_time=start_time.timestamp(),
+            traffic_model="best_guess",
+            mode="driving"
+        )
+        
+        duration_value = traffic_results["rows"][0]["elements"][0].get("duration_in_traffic", {}).get("value", None)
+        
+        if duration_value:
+            average_times[origin] = {"average_commute_time": duration_value}
+        else:
+            average_times[origin] = {"average_commute_time": 0}
+    
+    return {"traffic_data": data_collection, "average_times": average_times}
+
 
 if __name__ == "__main__":
     import uvicorn

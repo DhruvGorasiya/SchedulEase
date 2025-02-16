@@ -2,3 +2,15 @@
 {"event_type": "event", "location": "boston", "date": "26/12/2025", "time": "6pm", "budget": "2500", "attendees": "1000"}
 {"event_type": "funeral", "location": "fenway", "date": "10/10/2025", "time": "10:00 PM", "budget": "10000", "attendees": "800"}
 {"event_type": "party", "location": "boston", "date": "11/11/2025", "time": "6pm", "budget": "200", "attendees": "200"}
+{"event_type": "interview party", "location": "jamica plain", "date": "02/16/2025", "time": "6AM", "budget": "500", "attendees": "9"}
+{"event_type": "paert", "location": "boston", "date": "11/11/11", "time": "1am", "budget": "1", "attendees": "1"}
+{"event_type": "wedding", "location": "boston", "date": "11/11/11", "time": "1am", "budget": "1", "attendees": "1"}
+{"event_type": "idk", "location": "bostn", "date": "11/11/11/", "time": "1am", "budget": "1", "attendees": "1"}
+{"event_type": "party", "location": "boston", "date": "11/11/11", "time": "1am", "budget": "1", "attendees": "1"}
+{"event_type": "hi", "location": "boston", "date": "11/11/11", "time": "1am", "budget": "1", "attendees": "1"}
+{"event_type": "party", "location": "bostnon", "date": "11/11/11", "time": "1am", "budget": "11", "attendees": "1"}
+{"event_type": "party", "location": "bostno", "date": "11/11/11", "time": "1am", "budget": "11", "attendees": "1"}
+{"event_type": "party", "location": "boston", "date": "11/11/11", "time": "1am", "budget": "1", "attendees": "1"}
+{"event_type": "party", "location": "boston", "date": "11/11/11", "time": "1am", "budget": "1", "attendees": "1"}
+{"event_type": "party", "location": "boston", "date": "2011-11-11", "time": "1am", "budget": "1", "attendees": "1"}
+{"event_type": "party", "location": "boston", "date": "2025-11-11", "time": "1am", "budget": "1", "attendees": "1"}
