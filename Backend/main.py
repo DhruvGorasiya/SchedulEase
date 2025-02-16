@@ -58,6 +58,10 @@ class MessageResponse(BaseModel):
     venues: Optional[List[dict]] = None
     timestamp: datetime = Field(default_factory=datetime.now)
 
+class PlaceResponse(BaseModel):
+    places: List[dict]
+    timestamp: datetime = Field(default_factory=datetime.now)
+
 # Store conversation states
 conversations: Dict[str, ConversationState] = {}
 
@@ -215,7 +219,7 @@ def validate_input(question_type: str, user_input: str) -> tuple[bool, str]:
             uncertainty_words = [
                 'around', 'about', 'approximately', 'maybe', 'may be', 'probably',
                 'likely', 'roughly', 'somewhere', 'circa', 'near', 'close to',
-                'approximately at', 'at about'
+                'approximately at', 'at about', 'around 6pm', 'maybe noon'
             ]
             
             cleaned_input = user_input
@@ -598,6 +602,44 @@ def get_simplified_traffic_data(city_name: str, destination: str, future_date: s
             }
     
     return {"traffic_data": data_collection}
+
+@app.get("/generate-random-places", response_model=PlaceResponse)
+async def generate_random_places(event_type: str = "party"):
+    try:
+        # Read the JSON file
+        with open('place_data.json', 'r') as file:
+            all_places = json.load(file)
+        
+        # Filter places that match the event type (case-insensitive)
+        matching_places = [
+            place for place in all_places.get('places', [])
+            if event_type.lower() in [et.lower() for et in place.get('event_types', [])]
+        ]
+        
+        # If no matching places found, use all places
+        if not matching_places:
+            matching_places = all_places.get('places', [])
+        
+        # Select 20 random unique places
+        selected_places = random.sample(
+            matching_places,
+            min(20, len(matching_places))  # Ensure we don't try to sample more than available
+        )
+        
+        return PlaceResponse(places=selected_places)
+        
+    except Exception as e:
+        print(f"Error generating places: {str(e)}")
+        return PlaceResponse(places=[{
+            "name": "Error",
+            "address": "Could not generate place recommendations at this time",
+            "capacity": "Unknown",
+            "features": ["Please try again later"],
+            "website": "",
+            "state": "Unknown",
+            "estimated_cost": "Unknown",
+            "event_types": [event_type]
+        }])
 
 if __name__ == "__main__":
     import uvicorn

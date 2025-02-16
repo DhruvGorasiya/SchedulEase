@@ -1,0 +1,600 @@
+{
+  "places": [
+    {
+      "name": "Madison Square Garden",
+      "address": "4 Pennsylvania Plaza, New York, NY 10001",
+      "capacity": "Up to 20,000 attendees",
+      "features": [
+        "Central location in Manhattan",
+        "State-of-the-art sound and lighting systems",
+        "Multiple seating configurations",
+        "VIP suites",
+        "In-house catering services"
+      ],
+      "website": "https://www.msg.com/madison-square-garden",
+      "state": "New York",
+      "estimated_cost": "Starting from $500,000 per day",
+      "event_types": ["Concerts", "Sports events", "Large-scale conferences"]
+    },
+    {
+      "name": "L.A. Live",
+      "address": "800 W Olympic Blvd, Los Angeles, CA 90015",
+      "capacity": "Varies by venue; up to 7,100 in Peacock Theater",
+      "features": [
+        "Multiple event spaces",
+        "Advanced audiovisual equipment",
+        "Central downtown location",
+        "Proximity to hotels and restaurants",
+        "On-site parking"
+      ],
+      "website": "https://www.lalive.com/",
+      "state": "California",
+      "estimated_cost": "Starting from $100,000 per day",
+      "event_types": ["Concerts", "Award shows", "Corporate events"]
+    },
+    {
+      "name": "The Glasshouse",
+      "address": "660 12th Avenue, New York, NY 10019",
+      "capacity": "Up to 1,850 guests",
+      "features": [
+        "Panoramic views of the Hudson River and Manhattan skyline",
+        "Two outdoor terraces",
+        "Modern design with customizable spaces",
+        "Advanced audiovisual systems",
+        "VIP lounges and green rooms"
+      ],
+      "website": "https://www.theglasshouses.com/",
+      "state": "New York",
+      "estimated_cost": "Starting from $50,000 per day",
+      "event_types": ["Corporate events", "Weddings", "Product launches"]
+    },
+    {
+      "name": "Carnegie Hall",
+      "address": "881 Seventh Avenue, New York, NY 10019",
+      "capacity": "Stern Auditorium: 2,804 seats; Zankel Hall: 599 seats; Weill Recital Hall: 268 seats",
+      "features": [
+        "Historic venue with renowned acoustics",
+        "Multiple performance spaces",
+        "Central Manhattan location",
+        "In-house event planning services",
+        "Proximity to luxury accommodations"
+      ],
+      "website": "https://www.carnegiehall.org/",
+      "state": "New York",
+      "estimated_cost": "Starting from $20,000 per day",
+      "event_types": [
+        "Classical and contemporary concerts",
+        "Lectures",
+        "Ceremonies"
+      ]
+    },
+    {
+      "name": "Walter E. Washington Convention Center",
+      "address": "801 Mt Vernon Pl NW, Washington, D.C. 20001",
+      "capacity": "2.3 million square feet of event space",
+      "features": [
+        "Flexible meeting and exhibit spaces",
+        "Advanced technological infrastructure",
+        "In-house catering services",
+        "Central location in the nation's capital",
+        "Proximity to hotels and public transportation"
+      ],
+      "website": "https://eventsdc.com/venues/walter-e-washington-convention-center",
+      "state": "District of Columbia",
+      "estimated_cost": "Starting from $150,000 per day",
+      "event_types": ["Conventions", "Trade shows", "Large conferences"]
+    },
+    {
+      "name": "Bowery Ballroom",
+      "address": "6 Delancey Street, New York, NY 10002",
+      "capacity": "575 attendees",
+      "features": [
+        "Intimate setting with excellent acoustics",
+        "Historic architecture",
+        "Full-service bars",
+        "Located in the vibrant Lower East Side",
+        "Proximity to public transportation"
+      ],
+      "website": "https://www.boweryballroom.com/",
+      "state": "New York",
+      "estimated_cost": "Starting from $10,000 per day",
+      "event_types": [
+        "Live music performances",
+        "Private parties",
+        "Corporate events"
+      ]
+    },
+    {
+      "name": "The Borgata Hotel Casino & Spa",
+      "address": "1 Borgata Way, Atlantic City, NJ 08401",
+      "capacity": "The Event Center: 2,400 seats; The Music Box: 1,000 seats",
+      "features": [
+        "Multiple entertainment venues",
+        "Luxury accommodations",
+        "On-site casino",
+        "Fine dining restaurants",
+        "Spa and wellness facilities"
+      ],
+      "website": "https://www.theborgata.com/",
+      "state": "New Jersey",
+      "estimated_cost": "Starting from $30,000 per day",
+      "event_types": ["Concerts", "Comedy shows", "Corporate retreats"]
+    },
+    {
+      "name": "Peacock Theater at L.A. Live",
+      "address": "777 Chick Hearn Ct, Los Angeles, CA 90015",
+      "capacity": "7,100 seats",
+      "features": [
+        "Modern design with advanced audiovisual capabilities",
+        "Located within the L.A. Live entertainment complex",
+        "Proximity to dining and lodging options",
+        "In-house event management services",
+        "Ample parking facilities"
+      ],
+      "website": "https://www.lalive.com/venues/peacock-theater",
+      "state": "California",
+      "estimated_cost": "Starting from $75,000 per day",
+      "event_types": ["Concerts", "Award ceremonies", "Corporate presentations"]
+    },
+    {
+      "name": "The Novo",
+      "address": "800 W Olympic Blvd, Los Angeles, CA 90015",
+      "capacity": "2,300 attendees",
+      "features": [
+        "Intimate venue with modern amenities",
+        "Located within L.A. Live",
+        "State-of-the-art sound and lighting systems",
+        "Multiple bars and lounges",
+        "Proximity to downtown Los Angeles attractions"
+      ],
+      "website": "https://www.thenovodtla.com/",
+      "state": "California",
+      "estimated_cost": "Starting from $25,000 per day",
+      "event_types": ["Live music events", "Comedy shows", "Private parties"]
+    },
+    {
+      "name": "Red Rocks Amphitheatre",
+      "address": "18300 W Alameda Pkwy, Morrison, CO 80465",
+      "capacity": "9,525 attendees",
+      "features": [
+        "Natural acoustics within a stunning rock structure",
+        "Outdoor seating with panoramic views",
+        "On-site visitor center and museum",
+        "Concession stands",
+        "Proximity to Denver"
+      ],
+      "website": "https://www.redrocksonline.com/",
+      "state": "Colorado",
+      "estimated_cost": "Starting from $100,000 per day",
+      "event_types": ["Concerts", "Film screenings", "Fitness events"]
+    },
+    {
+      "name": "Jacob K. Javits Convention Center",
+      "address": "655 West 34th Street, New York, NY 10014",
+      "capacity": "3.3 million square feet of total interior area",
+      "features": [
+        "Multiple exhibition halls",
+        "Meeting rooms",
+        "Advanced technological infrastructure",
+        "On-site catering services",
+        "Proximity to transportation hubs"
+      ],
+      "website": "https://www.javitscenter.com/",
+      "state": "New York",
+      "estimated_cost": "Varies based on event size and space requirements",
+      "event_types": ["Conventions", "Trade shows", "Corporate events"]
+    },
+    {
+      "name": "Seattle Convention Center",
+      "address": "705 Pike Street, Seattle, WA 98101",
+      "capacity": "414,722 square feet of rentable event space",
+      "features": [
+        "Multiple exhibition halls",
+        "Meeting rooms",
+        "Atrium with restaurants and shops",
+        "Proximity to hotels and public transportation",
+        "On-site parking"
+      ],
+      "website": "https://seattleconventioncenter.com/",
+      "state": "Washington",
+      "estimated_cost": "Varies based on event size and space requirements",
+      "event_types": ["Conventions", "Trade shows", "Corporate events"]
+    },
+    {
+      "name": "Toyota Music Factory",
+      "address": "300 W Las Colinas Blvd, Irving, TX 75039",
+      "capacity": "8,000 in The Pavilion (amphitheater); 4,000 in indoor theater; 2,500 in intimate theater",
+      "features": [
+        "Multiple event spaces",
+        "Restaurants and bars on-site",
+        "Proximity to hotels",
+        "Advanced sound and lighting systems",
+        "Ample parking facilities"
+      ],
+      "website": "http://www.thepaviliontmf.com/",
+      "state": "Texas",
+      "estimated_cost": "Starting from $50,000 per day",
+      "event_types": ["Concerts", "Corporate events", "Private parties"]
+    },
+    {
+      "name": "Toyota Center",
+      "address": "1510 Polk Street, Houston, TX 77002",
+      "capacity": "18,104 for basketball games; up to 19,300 for concerts",
+      "features": [
+        "Multiple luxury suites",
+        "Club seats",
+        "On-site restaurants and bars",
+        "Proximity to downtown Houston attractions",
+        "Advanced audiovisual systems"
+      ],
+      "website": "https://www.toyotacenter.com/",
+      "state": "Texas",
+      "estimated_cost": "Starting from $100,000 per day",
+      "event_types": ["Sports events", "Concerts", "Corporate gatherings"]
+    },
+    {
+      "name": "Paycom Center",
+      "address": "100 W Reno Ave, Oklahoma City, OK 73102",
+      "capacity": "Up to 19,711 attendees",
+      "features": [
+        "Multiple seating levels",
+        "Luxury suites",
+        "On-site restaurants and bars",
+        "Proximity to downtown attractions",
+        "Advanced audiovisual systems"
+      ],
+      "website": "https://www.paycomcenter.com/",
+      "state": "Oklahoma",
+      "estimated_cost": "Starting from $75,000 per day",
+      "event_types": ["Sports events", "Concerts", "Corporate events"]
+    },
+    {
+      "name": "Climate Pledge Arena",
+      "address": "334 1st Ave N, Seattle, WA 98109",
+      "capacity": "Up to 18,100 attendees",
+      "features": [
+        "First carbon neutral arena",
+        "State-of-the-art sound system",
+        "Multiple premium spaces",
+        "Sustainable design",
+        "Advanced digital experience"
+      ],
+      "website": "https://climatepledgearena.com/",
+      "state": "Washington",
+      "estimated_cost": "Starting from $150,000 per day",
+      "event_types": ["Concerts", "Sports events", "Corporate events"]
+    },
+    {
+      "name": "Moody Center",
+      "address": "2001 Robert Dedman Dr, Austin, TX 78712",
+      "capacity": "Up to 15,000 attendees",
+      "features": [
+        "Modern design",
+        "Premium hospitality areas",
+        "State-of-the-art technology",
+        "Multiple configurations",
+        "Located near downtown Austin"
+      ],
+      "website": "https://www.moodycenteratx.com/",
+      "state": "Texas",
+      "estimated_cost": "Starting from $85,000 per day",
+      "event_types": ["Concerts", "Sports events", "Special events"]
+    },
+    {
+      "name": "Kia Forum",
+      "address": "3900 W Manchester Blvd, Inglewood, CA 90305",
+      "capacity": "Up to 17,505 attendees",
+      "features": [
+        "Historic venue",
+        "Recently renovated",
+        "Premium seating options",
+        "Excellent acoustics",
+        "Proximity to LAX"
+      ],
+      "website": "https://www.thekiaforum.com/",
+      "state": "California",
+      "estimated_cost": "Starting from $125,000 per day",
+      "event_types": ["Concerts", "Sports events", "Family shows"]
+    },
+    {
+      "name": "Crypto.com Arena",
+      "address": "1111 S Figueroa St, Los Angeles, CA 90015",
+      "capacity": "Up to 20,000 attendees",
+      "features": ["Multiple luxury suites", "Premium clubs", "State-of-the-art LED displays", "Multiple dining options", "Downtown LA location"],
+      "website": "https://www.cryptoarena.com/",
+      "state": "California",
+      "estimated_cost": "Starting from $250,000 per day",
+      "event_types": ["Sports events", "Concerts", "Award shows"]
+    },
+    {
+      "name": "United Center",
+      "address": "1901 W Madison St, Chicago, IL 60612",
+      "capacity": "Up to 23,500 attendees",
+      "features": ["180 luxury suites", "Premium seating", "Multiple restaurants", "Advanced sound system", "Historic sports venue"],
+      "website": "https://www.unitedcenter.com/",
+      "state": "Illinois",
+      "estimated_cost": "Starting from $200,000 per day",
+      "event_types": ["Sports events", "Concerts", "Family shows"]
+    },
+    {
+      "name": "Barclays Center",
+      "address": "620 Atlantic Ave, Brooklyn, NY 11217",
+      "capacity": "Up to 19,000 attendees",
+      "features": ["Distinctive architecture", "Premium lounges", "World-class acoustics", "Multiple VIP areas", "Subway access"],
+      "website": "https://www.barclayscenter.com/",
+      "state": "New York",
+      "estimated_cost": "Starting from $175,000 per day",
+      "event_types": ["Sports events", "Concerts", "Special events"]
+    },
+    {
+      "name": "Georgia World Congress Center",
+      "address": "285 Andrew Young International Blvd NW, Atlanta, GA 30313",
+      "capacity": "3.9 million square feet",
+      "features": ["Largest convention center in Georgia", "92 meeting rooms", "Multiple exhibit halls", "Advanced tech infrastructure", "Downtown location"],
+      "website": "https://www.gwcca.org/gwcc",
+      "state": "Georgia",
+      "estimated_cost": "Varies based on space requirements",
+      "event_types": ["Conventions", "Trade shows", "Corporate events"]
+    },
+    {
+      "name": "Mercedes-Benz Stadium",
+      "address": "1 AMB Drive NW, Atlanta, GA 30313",
+      "capacity": "Up to 75,000 attendees",
+      "features": ["Retractable roof", "360-degree halo video board", "Premium clubs", "Multiple restaurants", "LEED Platinum certified"],
+      "website": "https://mercedesbenzstadium.com/",
+      "state": "Georgia",
+      "estimated_cost": "Starting from $500,000 per day",
+      "event_types": ["Sports events", "Concerts", "Large conventions"]
+    },
+    {
+      "name": "Fenway Park",
+      "address": "4 Jersey Street, Boston, MA 02215",
+      "capacity": "Up to 37,755 attendees",
+      "features": ["Historic venue", "Green Monster seating", "Premium clubs", "Unique atmosphere", "Central location"],
+      "website": "https://www.mlb.com/redsox/ballpark",
+      "state": "Massachusetts",
+      "estimated_cost": "Starting from $350,000 per day",
+      "event_types": ["Sports events", "Concerts", "Special events"]
+    },
+    {
+      "name": "Allegiant Stadium",
+      "address": "3333 Al Davis Way, Las Vegas, NV 89118",
+      "capacity": "Up to 65,000 attendees",
+      "features": ["Retractable natural grass field", "Premium clubs", "State-of-the-art technology", "Climate controlled", "Strip proximity"],
+      "website": "https://www.allegiantstadium.com/",
+      "state": "Nevada",
+      "estimated_cost": "Starting from $750,000 per day",
+      "event_types": ["Sports events", "Concerts", "Large conventions"]
+    },
+    {
+      "name": "T-Mobile Arena",
+      "address": "3780 Las Vegas Blvd S, Las Vegas, NV 89158",
+      "capacity": "Up to 20,000 attendees",
+      "features": ["Premium seating options", "Multiple lounges", "Advanced sound system", "Strip location", "VIP experiences"],
+      "website": "https://www.t-mobilearena.com/",
+      "state": "Nevada",
+      "estimated_cost": "Starting from $200,000 per day",
+      "event_types": ["Sports events", "Concerts", "Special events"]
+    },
+    {
+      "name": "Minute Maid Park",
+      "address": "501 Crawford St, Houston, TX 77002",
+      "capacity": "Up to 41,168 attendees",
+      "features": ["Retractable roof", "Premium clubs", "Multiple restaurants", "Downtown location", "Historic train"],
+      "website": "https://www.mlb.com/astros/ballpark",
+      "state": "Texas",
+      "estimated_cost": "Starting from $300,000 per day",
+      "event_types": ["Sports events", "Concerts", "Corporate events"]
+    },
+    {
+      "name": "Levi's Stadium",
+      "address": "4900 Marie P DeBartolo Way, Santa Clara, CA 95054",
+      "capacity": "Up to 68,500 attendees",
+      "features": ["LEED Gold certified", "Premium clubs", "Museum", "Solar panels", "Advanced technology"],
+      "website": "https://www.levisstadium.com/",
+      "state": "California",
+      "estimated_cost": "Starting from $750,000 per day",
+      "event_types": ["Sports events", "Concerts", "Corporate events"]
+    },
+    {
+      "name": "Chase Center",
+      "address": "1 Warriors Way, San Francisco, CA 94158",
+      "capacity": "Up to 18,064 attendees",
+      "features": ["Premium lounges", "Waterfront location", "State-of-the-art technology", "Multiple restaurants", "LEED Gold certified"],
+      "website": "https://www.chasecenter.com/",
+      "state": "California",
+      "estimated_cost": "Starting from $200,000 per day",
+      "event_types": ["Sports events", "Concerts", "Corporate events"]
+    },
+    {
+      "name": "Little Caesars Arena",
+      "address": "2645 Woodward Ave, Detroit, MI 48201",
+      "capacity": "Up to 20,000 attendees",
+      "features": ["Innovative design", "Premium clubs", "Multiple restaurants", "Downtown location", "Advanced technology"],
+      "website": "https://www.313presents.com/venue/little-caesars-arena",
+      "state": "Michigan",
+      "estimated_cost": "Starting from $150,000 per day",
+      "event_types": ["Sports events", "Concerts", "Family shows"]
+    },
+    {
+      "name": "Fiserv Forum",
+      "address": "1111 Vel R. Phillips Ave, Milwaukee, WI 53203",
+      "capacity": "Up to 17,341 attendees",
+      "features": ["Premium suites", "Outdoor plaza", "Multiple bars", "Downtown location", "State-of-the-art amenities"],
+      "website": "https://www.fiservforum.com/",
+      "state": "Wisconsin",
+      "estimated_cost": "Starting from $125,000 per day",
+      "event_types": ["Sports events", "Concerts", "Special events"]
+    },
+    {
+      "name": "Caesars Superdome",
+      "address": "1500 Sugar Bowl Dr, New Orleans, LA 70112",
+      "capacity": "Up to 76,468 attendees",
+      "features": ["Iconic design", "Multiple premium areas", "Climate controlled", "Downtown location", "Advanced lighting"],
+      "website": "https://www.caesarssuperdome.com/",
+      "state": "Louisiana",
+      "estimated_cost": "Starting from $500,000 per day",
+      "event_types": ["Sports events", "Concerts", "Large conventions"]
+    },
+    {
+      "name": "Bridgestone Arena",
+      "address": "501 Broadway, Nashville, TN 37203",
+      "capacity": "Up to 20,000 attendees",
+      "features": ["Premium seating", "Multiple clubs", "Downtown location", "Advanced acoustics", "Walk of Fame Park"],
+      "website": "https://www.bridgestonearena.com/",
+      "state": "Tennessee",
+      "estimated_cost": "Starting from $150,000 per day",
+      "event_types": ["Sports events", "Concerts", "Family shows"]
+    },
+    {
+      "name": "State Farm Stadium",
+      "address": "1 Cardinals Drive, Glendale, AZ 85305",
+      "capacity": "Up to 63,400 attendees",
+      "features": ["Retractable roof", "Roll-out field", "Premium clubs", "Multiple restaurants", "Advanced technology"],
+      "website": "https://www.statefarmstadium.com/",
+      "state": "Arizona",
+      "estimated_cost": "Starting from $500,000 per day",
+      "event_types": ["Sports events", "Concerts", "Large conventions"]
+    },
+    {
+      "name": "Footprint Center",
+      "address": "201 E Jefferson St, Phoenix, AZ 85004",
+      "capacity": "Up to 18,000 attendees",
+      "features": ["Premium suites", "Multiple clubs", "Downtown location", "Advanced technology", "Sustainable design"],
+      "website": "https://www.footprintcenter.com/",
+      "state": "Arizona",
+      "estimated_cost": "Starting from $125,000 per day",
+      "event_types": ["Sports events", "Concerts", "Special events"]
+    },
+    {
+      "name": "Ball Arena",
+      "address": "1000 Chopper Cir, Denver, CO 80204",
+      "capacity": "Up to 19,099 attendees",
+      "features": ["Premium clubs", "Multiple restaurants", "Downtown location", "Mountain views", "Advanced technology"],
+      "website": "https://www.ballarena.com/",
+      "state": "Colorado",
+      "estimated_cost": "Starting from $150,000 per day",
+      "event_types": ["Sports events", "Concerts", "Family shows"]
+    },
+    {
+      "name": "Target Center",
+      "address": "600 First Avenue North, Minneapolis, MN 55403",
+      "capacity": "Up to 20,000 attendees",
+      "features": ["Premium suites", "Multiple clubs", "Downtown location", "Skyway connected", "Green roof"],
+      "website": "https://www.targetcenter.com/",
+      "state": "Minnesota",
+      "estimated_cost": "Starting from $125,000 per day",
+      "event_types": ["Sports events", "Concerts", "Special events"]
+    },
+    {
+      "name": "Capital One Arena",
+      "address": "601 F St NW, Washington, DC 20004",
+      "capacity": "Up to 20,356 attendees",
+      "features": ["Premium clubs", "Multiple restaurants", "Metro accessible", "Downtown location", "Advanced technology"],
+      "website": "https://www.capitalonearena.com/",
+      "state": "District of Columbia",
+      "estimated_cost": "Starting from $175,000 per day",
+      "event_types": ["Sports events", "Concerts", "Special events"]
+    },
+    {
+      "name": "Gainbridge Fieldhouse",
+      "address": "125 S Pennsylvania St, Indianapolis, IN 46204",
+      "capacity": "Up to 17,923 attendees",
+      "features": ["Recently renovated", "Premium clubs", "Multiple restaurants", "Downtown location", "Historic design"],
+      "website": "https://www.gainbridgefieldhouse.com/",
+      "state": "Indiana",
+      "estimated_cost": "Starting from $125,000 per day",
+      "event_types": ["Sports events", "Concerts", "Special events"]
+    },
+    {
+      "name": "FLA Live Arena",
+      "address": "1 Panther Parkway, Sunrise, FL 33323",
+      "capacity": "Up to 19,250 attendees",
+      "features": ["Premium clubs", "Multiple restaurants", "Advanced technology", "Ample parking", "Climate controlled"],
+      "website": "https://www.flalivearena.com/",
+      "state": "Florida",
+      "estimated_cost": "Starting from $150,000 per day",
+      "event_types": ["Sports events", "Concerts", "Family shows"]
+    },
+    {
+      "name": "Amalie Arena",
+      "address": "401 Channelside Dr, Tampa, FL 33602",
+      "capacity": "Up to 21,500 attendees",
+      "features": ["Waterfront location", "Premium clubs", "Multiple restaurants", "Advanced technology", "Downtown location"],
+      "website": "https://www.amaliearena.com/",
+      "state": "Florida",
+      "estimated_cost": "Starting from $175,000 per day",
+      "event_types": ["Sports events", "Concerts", "Special events"]
+    },
+    {
+      "name": "Moda Center",
+      "address": "1 N Center Ct St, Portland, OR 97227",
+      "capacity": "Up to 19,980 attendees",
+      "features": ["Premium suites", "Multiple restaurants", "Sustainable design", "Downtown location", "Public transit access"],
+      "website": "https://www.rosequarter.com/",
+      "state": "Oregon",
+      "estimated_cost": "Starting from $125,000 per day",
+      "event_types": ["Sports events", "Concerts", "Family shows"]
+    },
+    {
+      "name": "Wells Fargo Center",
+      "address": "3601 S Broad St, Philadelphia, PA 19148",
+      "capacity": "Up to 21,000 attendees",
+      "features": ["Premium clubs", "Multiple restaurants", "Advanced technology", "Sports complex location", "Recent renovations"],
+      "website": "https://www.wellsfargocenterphilly.com/",
+      "state": "Pennsylvania",
+      "estimated_cost": "Starting from $175,000 per day",
+      "event_types": ["Sports events", "Concerts", "Special events"]
+    },
+    {
+      "name": "TD Garden",
+      "address": "100 Legends Way, Boston, MA 02114",
+      "capacity": "Up to 19,580 attendees",
+      "features": ["Premium clubs", "Multiple restaurants", "North Station location", "Advanced technology", "Historic venue"],
+      "website": "https://www.tdgarden.com/",
+      "state": "Massachusetts",
+      "estimated_cost": "Starting from $200,000 per day",
+      "event_types": ["Sports events", "Concerts", "Special events"]
+    },
+    {
+      "name": "Nationwide Arena",
+      "address": "200 W Nationwide Blvd, Columbus, OH 43215",
+      "capacity": "Up to 20,000 attendees",
+      "features": ["Premium suites", "Multiple restaurants", "Downtown location", "Advanced technology", "Arena District anchor"],
+      "website": "https://www.nationwidearena.com/",
+      "state": "Ohio",
+      "estimated_cost": "Starting from $125,000 per day",
+      "event_types": ["Sports events", "Concerts", "Family shows"]
+    },
+    {
+      "name": "Spectrum Center",
+      "address": "333 E Trade St, Charlotte, NC 28202",
+      "capacity": "Up to 20,200 attendees",
+      "features": ["Premium clubs", "Multiple restaurants", "Downtown location", "Advanced technology", "Public transit access"],
+      "website": "https://www.spectrumcentercharlotte.com/",
+      "state": "North Carolina",
+      "estimated_cost": "Starting from $150,000 per day",
+      "event_types": ["Sports events", "Concerts", "Special events"]
+    },
+    {
+      "name": "FedExForum",
+      "address": "191 Beale St, Memphis, TN 38103",
+      "capacity": "Up to 18,119 attendees",
+      "features": ["Premium clubs", "Multiple restaurants", "Beale Street location", "Advanced technology", "Music heritage"],
+      "website": "https://www.fedexforum.com/",
+      "state": "Tennessee",
+      "estimated_cost": "Starting from $125,000 per day",
+      "event_types": ["Sports events", "Concerts", "Special events"]
+    },
+    {
+      "name": "Vivint Arena",
+      "address": "301 W South Temple, Salt Lake City, UT 84101",
+      "capacity": "Up to 18,306 attendees",
+      "features": ["Premium clubs", "Multiple restaurants", "Downtown location", "Mountain views", "Recent renovations"],
+      "website": "https://www.vivintarena.com/",
+      "state": "Utah",
+      "estimated_cost": "Starting from $125,000 per day",
+      "event_types": ["Sports events", "Concerts", "Special events"]
+    }
+  ]
+}
