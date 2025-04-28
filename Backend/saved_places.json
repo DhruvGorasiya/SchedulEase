@@ -45,6 +45,29 @@
       },
       "date": "2025-11-26",
       "event_type": "party"
+    },
+    {
+      "name": "The Harp",
+      "address": "85 Causeway Street, Boston, MA 02114",
+      "capacity": "Up to 150",
+      "features": [
+        "Large outdoor patio",
+        "Live music",
+        "Full bar and food options"
+      ],
+      "source": "http://www.theharpboston.com",
+      "accessibility_score": 95.0,
+      "weather_data": {
+        "Temperature": 27.6,
+        "Humidity": 75,
+        "WindSpeed": 22.7,
+        "PrecipitationProbability": 69
+      },
+      "safety_data": {
+        "Hostility": "Moderate"
+      },
+      "date": "2025-11-26",
+      "event_type": "party"
     }
   ]
 }
